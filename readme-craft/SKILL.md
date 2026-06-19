@@ -14,7 +14,7 @@ description: |
   - 需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）→ 用 readme
   - 写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件 → 直接写，不需要 skill
 risk: safe
-source: "self-authored"
+source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 ---
 
 # readme-craft

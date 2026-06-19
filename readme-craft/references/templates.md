@@ -245,12 +245,18 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 
 ## Features
 
-- ⚡️ 特性 1：做什么
-- 🎨 特性 2：解决啥
-- 🔒 特性 3：为啥重要
-- 📱 特性 4：差异化
+**写法**：每条一句完整的话，把价值点说清楚；不要 inline-header（`**特性名**：描述`）。emoji 慎用，参考 `humanizer-rules.md` 第 1、2 条。
 
-emoji 不是必须的，加了要保持风格统一。
+- 特性 1：能做什么，对用户意味着什么
+- 特性 2：跟竞品/上一个版本的差别在哪
+- 特性 3：什么场景下特别有用
+- 特性 4：可选——性能/兼容性/可扩展性等
+
+> ❌ 反例（`humanizer-rules.md` 第 2 条）：
+> ```markdown
+> - ⚡️ **极致性能**：采用最新算法，性能提升 100%
+> - 🎨 **优雅设计**：UI 简洁大方，交互流畅
+> ```
 
 ## Tech Stack
 
@@ -350,10 +356,12 @@ pnpm typecheck    # tsc
 
 ## Features
 
-- 🔐 JWT / OAuth 2.0 认证
-- 🚦 Rate limiting
-- 📦 标准化 JSON 响应
-- 🔍 OpenAPI 3.0 文档（链接到 `/docs`）
+**写法**：API 服务的 Features 通常是 4-6 条短能力，每条不超过一行。可以用 emoji 但不要每行都用，参考 `humanizer-rules.md` 第 1 条。
+
+- JWT / OAuth 2.0 认证
+- 接口级 Rate limiting
+- 标准化 JSON 响应（统一错误码、分页结构）
+- OpenAPI 3.0 文档（`/docs` 自动生成）
 
 ## Quick Start
 
@@ -586,10 +594,11 @@ $$
 | Implementations of this functionality are characterized by | This does |
 
 保留项目个性的小技巧：
-- 在 About 段加一句"我们为什么写它"
-- 在 Features 用 emoji 但只用一个调性
+- 在 About 段加一句"我们为什么写它"——这是 AI 写不出来的部分
+- Features 段少用 emoji、**不**用 inline-header bullets（详见 `humanizer-rules.md` 第 1、2 条）
 - 在 Acknowledgments 写"灵感来自 X 项目"——这比冷冰冰的版本号有人味
 - FAQ 段落用"我经常被问到的几个问题"开头
+- 写一句"踩过的坑"或者"已知限制"，这是 AI 极少主动写的
 
 ---
 

@@ -113,7 +113,7 @@ source: "self-authored"
 
 ### Step 5 — 撰写 README
 
-按 Best-README-Template 的标准化结构产出。每个 section 的具体写法见 `references/templates.md`；**每条 GFM 语法的规则、陷阱、最佳实践见 `references/gfm-syntax.md`**——撰写时按需回查，不要凭印象写。本节只规定**通用规则**和**顺序**。
+按 Best-README-Template 的标准化结构产出。每个 section 的具体写法见 `references/templates.md`；**每条 GFM 语法的规则、陷阱、最佳实践见 `references/gfm-syntax.md`**；**反 AI 味硬规则（破折号节制、标题禁 emoji、Features 不用 inline-header 列表、AI 高频词替换表）见 `references/humanizer-rules.md`**。三份文件按需回查，本节只规定**通用规则**和**顺序**。
 
 **必须按顺序包含的 section**（缺一个都不算合格）：
 

@@ -14,7 +14,7 @@ description: |
   - 需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）→ 用 readme
   - 写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件 → 直接写，不需要 skill
 risk: safe
-source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
+source: "self-authored"
 ---
 
 # readme-craft
@@ -41,8 +41,8 @@ source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 - **项目路径**：默认当前工作目录
 - **项目类型**：library / cli / web-app / api / tutorial / other
   - 优先从 manifest 自动推断（见 Step 1），推断不出再问
-- **目标语言**：中文 / 英文 / 双语
-  - 优先跟随 AGENTS.md / CLAUDE.md / 已有 README 的主语言；都没有默认英文
+- **目标语言**：multi-select，**English 必选且默认勾选**（详见 Step 1.5）
+  - 跳过询问的情形：用户明确说"不要问"、给具体语言列表、或选已有的 README 文件作为唯一源
 - **是否覆盖已有 README**：默认备份后全量重写（`README.md.bak`）
   - 用户明确说"增量"才做局部更新
 
@@ -66,6 +66,29 @@ source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 | .NET | `*.csproj`、`*.sln` |
 
 > 这是必做步骤——不读 manifest 就在 README 里写技术栈，几乎一定会猜错。
+
+### Step 1.5 — 选择 README 语言（默认必走）
+
+**用 `ask_user` 工具**多选询问，默认行为。**English 必选**（用户要求"默认英文为主 README"）。
+
+```yaml
+question: "需要生成哪些语言的 README？"
+selectionMode: multiple
+options:
+  - English（必选，作主 README）     # 默认勾选，id: en
+  - 简体中文（zh-CN）                  # id: zh-CN
+  - 日本語（ja）                       # id: ja
+  - 한국어（ko）                       # id: ko
+# 用户可通过 "Others..." 自由输入 BCP-47 标签：zh-TW、fr、de、es、pt-BR 等
+```
+
+**结果处理**：
+1. 把 Others 里用户输入的字符串也归一为 BCP-47（`中文` → `zh-CN`、`英文` → `en` 等）
+2. `langs` 列表保证：**English 永远排第一个**（用户没勾选也强制加入）
+3. 第一个元素对应 `README.md`，其他元素对应 `README.<bcp47>.md`
+4. 如果用户主动说"不要问"、"按英文来"、"按上次的选择"，跳过本步直接用上次 / 默认值
+
+**注意**：主 README（第一个语言）承担"完整版"角色，其他语言版本可以稍精简——但**所有版本都要可独立阅读**，不能有"见 README.md"的跨语言引用。
 
 ### Step 2 — 读取 AI 上下文（可选，但强烈建议）
 
@@ -210,19 +233,28 @@ source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 
 ### Step 7 — 写入并报告
 
-1. 写入 `<project-root>/README.md`
-2. 已有 README → 先备份为 `README.md.bak` 再覆盖
-3. 输出报告：`已生成 README.md（N 行，X 个 section，含 Y 个 shields 徽章）`
+按 `langs` 顺序循环写入每个语言版本：
+
+1. **第一个语言**（永远是 English，详见 Step 1.5）→ 写入 `<project-root>/README.md`
+2. **后续每个语言** → 写入 `<project-root>/README.<bcp47>.md`（如 `README.zh-CN.md`、`README.ja.md`）
+3. 已有同名文件 → 先备份为 `<file>.bak` 再覆盖
+4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`
+
+**翻译原则**（多语言版本必须遵守，详见 `references/i18n.md`）：
+- ✅ 翻译：标题、所有自然语言段落、bullet、Alert 文字、表格描述、代码注释
+- ❌ 不翻译：shields 徽章 URL、Markdown 链接、命令/路径/文件名、ASCII 树、技术术语
+- ⚠️ 代码块内的注释视上下文可翻译，但**标识符本身绝对不翻译**
 
 ---
 
 ## Output contract
 
-- 写入 `<project-root>/README.md`（或用户指定路径）
-- 文档长度 200–600 行（视项目复杂度）
+- 写入 `<project-root>/README.md`（主 README，第一个语言）+ `<project-root>/README.<bcp47>.md` ×（N-1）
+- 文档长度 200–600 行/语言（视项目复杂度）
 - 包含 Best-README-Template 风格：徽章、TOC、back-to-top、底部引用区
 - 每个 section 都有实际内容；不允许出现"待补充"、"TBD"、占位用户名
 - 遵循 GFM 规范（表格、代码块、Alerts、折叠、diff 都能正确渲染）
+- 多语言版本结构对齐（章节顺序、section 标题一致），便于读者对照
 
 ---
 
@@ -237,6 +269,9 @@ source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 | shields.io 链接失效 | 删掉对应徽章，或在 README 末尾加 `<!-- TODO: 替换失效徽章 -->` 并告知用户 |
 | 用户没指定项目路径 | 默认当前工作目录 |
 | 用户说"和原来一样" | 不动；增量更新要明确说"增量" |
+| 用户漏选 English | 强制加入（English 必选，详见 Step 1.5） |
+| 用户给的 BCP-47 不规范（如 `chinese`、`簡中`） | 归一化为标准标签（`zh-CN`、`zh-TW` 等）；归一不了就追问 |
+| 翻译某语言时遇到不能翻译的梗/双关 | 用同语言等价物替换；如果找不到就保持字面意思并在注释里说明 |
 
 ---
 
@@ -244,15 +279,19 @@ source: "https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft"
 
 **输入**：当前目录有 `package.json`（name: `vuepress-plugin-xxx`，description: "VuePress 主题增强插件"），有 `AGENTS.md` 描述作者风格偏好（"用第二人称、轻松点"）
 
-**操作**：扫描 → 读 AGENTS.md 提取风格 → 推断类型 library → 选 library 模板 → 撰写
+**操作**：扫描 → 读 AGENTS.md 提取风格 → 推断类型 library → Step 1.5 多选询问（用户选 en + zh-CN）→ 选 library 模板 → 撰写英文版 → 翻译成中文版
 
-**输出**：`./README.md`，library 模板，5 个 shields、9 个核心 section，标准 GFM 格式，开头"你可能需要它，如果你正在用 VuePress 搭……"
+**输出**：`./README.md`（英文，主）+ `./README.zh-CN.md`（中文），library 模板，5 个 shields、9 个核心 section，结构对齐
 
 **输入**：用户说"把我的项目 README 改成中文，语气轻松点"
 
 **操作**：读现有 README → 备份 → 按中文 + 轻松风格重写正文，结构保留
 
 **输出**：同结构，风格改造
+
+**输入**：用户说"生成中英日三个 README"
+
+**操作**：跳过 Step 1.5 多选（用户已经指定）→ 撰写三种语言版本 → 写入 `README.md`（en）+ `README.zh-CN.md` + `README.ja.md`
 
 ---
 

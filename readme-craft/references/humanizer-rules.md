@@ -44,7 +44,7 @@
 
 ### 2. Features 不用「粗体短句 + 冒号 + 描述」inline-header 列表
 
-❌ AI 味（你那份 README 的实际样子）：
+❌ AI 味（真实项目 README 里的典型样子）：
 ```markdown
 - 🗄️ **多数据库支持**：内置 MySQL 8、Oracle 21、SQL Server 12 三个驱动，切换即用
 - 📦 **双 ORM 模板**：MyBatis 与 MyBatis-Plus 各一套独立模板，按需选择
@@ -68,7 +68,7 @@
 
 ### 3. 破折号「——」节制使用
 
-❌ AI 味（你那份 README 第 65 行）：
+❌ AI 味（真实项目 README 里的典型样子）：
 ```markdown
 它解决的问题很简单——
 > 每次新表都要重复一遍 `Entity` + `Mapper` + `XML` + `Service` + `Impl` + `Controller` 的样板代码...
@@ -147,7 +147,9 @@ Code Generator 不仅支持 MyBatis，更是覆盖了 MyBatis-Plus 的全场景�
 | stands as | 是 / 作为 |
 | highlights (verb) | 体现 / 显示 |
 
-**规则**：写完用 `Select-String` 在最终 README 里搜这些词，能换成人话的都换。
+**规则**：写完在最终 README 里搜这些词（PowerShell 用 `Select-String`，Git Bash 用 `grep`），能换成人话的都换。
+
+**注意英文 README**：主 README 默认是英文，上表的替换词是给中文版用的。英文版的处理方式是**删掉或换成朴素的英文**（Additionally → Also；it is important to note that → note that；seamless → smooth；robust → well-tested；powerful → 能说清强在哪就写具体的，说不清就删），**不要把英文词替换成中文**。判断标准一样：这个词是人话还是"显得高级的空话"。
 
 ---
 

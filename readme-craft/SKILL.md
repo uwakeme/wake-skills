@@ -10,8 +10,8 @@ description: |
   "我的项目需要一个 README"、"新项目初始化 README"、"完善项目说明"。
 
   不要在以下情况使用：
-  - 需要同时维护 CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层 → 用 human-ai-docs
-  - 需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）→ 用 readme
+  - 需要同时维护 CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层 → 用 human-ai-docs（如已安装；没有就分开维护两个文件）
+  - 需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）→ 用 readme（如已安装；没有就按 Rails 惯例手写）
   - 写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件 → 直接写，不需要 skill
 risk: safe
 source: "self-authored"
@@ -69,7 +69,7 @@ source: "self-authored"
 
 ### Step 1.5 — 选择 README 语言（默认必走）
 
-**用 `ask_user` 工具**多选询问，默认行为。**English 必选**（用户要求"默认英文为主 README"）。
+**用 `ask_user` 工具**多选询问（环境没有该工具时，直接在回复里列出选项问一次），默认行为。**默认路径下 English 必选**（用户要求"默认英文为主 README"）；用户已明确指定语言的按下方结果处理第 3 条，不强制。
 
 ```yaml
 question: "需要生成哪些语言的 README？"
@@ -84,11 +84,12 @@ options:
 
 **结果处理**：
 1. 把 Others 里用户输入的字符串也归一为 BCP-47（`中文` → `zh-CN`、`英文` → `en` 等）
-2. `langs` 列表保证：**English 永远排第一个**（用户没勾选也强制加入）
-3. 第一个元素对应 `README.md`，其他元素对应 `README.<bcp47>.md`
-4. 如果用户主动说"不要问"、"按英文来"、"按上次的选择"，跳过本步直接用上次 / 默认值
+2. **默认路径**（用户没明确语言偏好，走多选询问）：`langs` 保证 **English 排第一**（用户没勾选也强制加入）
+3. **用户明确指定语言时完全按用户说的来**：说"只要中文"就只生成中文，说"把 README 改成中文"就保持中文为主 README——**不强制加 English**（强制规则只适用于默认路径，覆盖用户明确意愿是错误行为）
+4. 第一个元素对应 `README.md`，其他元素对应 `README.<bcp47>.md`
+5. 如果用户主动说"不要问"、"按英文来"、"按上次的选择"，跳过本步直接用上次 / 默认值
 
-**注意**：主 README（第一个语言）承担"完整版"角色，其他语言版本可以稍精简——但**所有版本都要可独立阅读**，不能有"见 README.md"的跨语言引用。
+**注意**：主 README（第一个语言）承担"完整版"角色，其他语言版本可以稍精简——但**所有版本都要可独立阅读**，内容不能靠"见 README.md"这类跨语言引用兜底（末尾导航性的"其他语言"清单除外，见 `references/i18n.md` §6）。
 
 ### Step 2 — 读取 AI 上下文（可选，但强烈建议）
 
@@ -142,7 +143,7 @@ options:
 
 1. **Logo + Title + Tagline**（居中，HTML `<div align="center">` 包裹）
 2. **Shields 徽章行**（build / version / license / stars，按实际能填的填，不可获得的不要写）
-3. **Table of Contents**（`<details>` 折叠）
+3. **Table of Contents**（`<details>` 折叠；全文 < 200 行可省略，与 Step 6 自检口径一致）
 4. **About / 项目简介**（2-3 句，"这是啥、给谁用、解决啥问题"）
 5. **Getting Started**（Prerequisites + Installation + 第一次 Run）
 6. **Usage**（最小可运行示例）
@@ -235,13 +236,14 @@ options:
 
 按 `langs` 顺序循环写入每个语言版本：
 
-1. **第一个语言**（永远是 English，详见 Step 1.5）→ 写入 `<project-root>/README.md`
+1. **第一个语言**（默认是 English，见 Step 1.5；用户明确指定唯一语言时按用户要求）→ 写入 `<project-root>/README.md`
 2. **后续每个语言** → 写入 `<project-root>/README.<bcp47>.md`（如 `README.zh-CN.md`、`README.ja.md`）
-3. 已有同名文件 → 先备份为 `<file>.bak` 再覆盖
+3. 已有同名文件 → 先备份为 `<file>.bak` 再覆盖；若 `.bak` 已存在，改用带时间戳的 `<file>.<YYYYMMDD-HHMMSS>.bak`，**绝不覆盖旧备份**（更早的备份才是用户的原始文件）
 4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`
 
 **翻译原则**（多语言版本必须遵守，详见 `references/i18n.md`）：
-- ✅ 翻译：标题、所有自然语言段落、bullet、Alert 文字、表格描述、代码注释
+- ✅ 翻译：所有自然语言段落、bullet、Alert 文字、表格描述、代码注释
+- ⚠️ 章节标题：默认**不翻译标题 key**（i18n.md §4 方案 A，如中英版都用 `## Features`）；用户明确要求"完全本地化观感"时才整篇翻译标题（方案 B）
 - ❌ 不翻译：shields 徽章 URL、Markdown 链接、命令/路径/文件名、ASCII 树、技术术语
 - ⚠️ 代码块内的注释视上下文可翻译，但**标识符本身绝对不翻译**
 
@@ -264,12 +266,12 @@ options:
 | --- | --- |
 | 推断不出技术栈 | 问用户"主要用什么语言/框架？"，不猜 |
 | 推断不出项目类型 | 问用户"这是 library、CLI、web 应用还是其他？"，不猜 |
-| 已有 README 且 ≥ 50 行 | 先备份 `README.md.bak` 再覆盖，告诉用户 |
+| 已有 README 且 ≥ 50 行 | 先备份再覆盖（`.bak` 已存在时改用带时间戳名，不覆盖旧备份），告诉用户 |
 | AGENTS.md / CLAUDE.md 含敏感信息 | 提取事实，绝不原样照抄；敏感字符串替换为 `your-api-key` |
 | shields.io 链接失效 | 删掉对应徽章，或在 README 末尾加 `<!-- TODO: 替换失效徽章 -->` 并告知用户 |
 | 用户没指定项目路径 | 默认当前工作目录 |
 | 用户说"和原来一样" | 不动；增量更新要明确说"增量" |
-| 用户漏选 English | 强制加入（English 必选，详见 Step 1.5） |
+| 默认路径下用户漏选 English | 强制加入（English 必选，详见 Step 1.5）；用户明确指定了语言清单的除外 |
 | 用户给的 BCP-47 不规范（如 `chinese`、`簡中`） | 归一化为标准标签（`zh-CN`、`zh-TW` 等）；归一不了就追问 |
 | 翻译某语言时遇到不能翻译的梗/双关 | 用同语言等价物替换；如果找不到就保持字面意思并在注释里说明 |
 
@@ -300,8 +302,8 @@ options:
 | 想要…… | 用什么 |
 | --- | --- |
 | 标准化、人性化、多样化的 README | **readme-craft**（这个 skill） |
-| CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层维护 | `human-ai-docs` |
-| Rails 命令级细节（bin/dev、Kamal、credentials） | `readme` |
+| CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层维护 | `human-ai-docs`（如已安装） |
+| Rails 命令级细节（bin/dev、Kamal、credentials） | `readme`（如已安装） |
 
 ---
 

@@ -66,7 +66,7 @@
 
 **突出章节**：API 必写、Built With 必写、Usage 必须有最小示例
 
-```markdown
+````markdown
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
@@ -175,7 +175,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 [Node-url]: https://nodejs.org/
 [TypeScript.ts]: https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
 [TypeScript-url]: https://www.typescriptlang.org/
-```
+````
 
 ---
 
@@ -183,7 +183,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 
 **突出章节**：Demo (asciinema / gif) 强烈建议、Commands 必写
 
-```markdown
+````markdown
 ## Demo
 
 [![asciicast](https://asciinema.org/a/<id>.svg)](https://asciinema.org/a/<id>)
@@ -220,7 +220,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 | `--target` | `-t` | 构建目标 | `dev` |
 | `--out` | `-o` | 输出目录 | `./dist` |
 | `--watch` | `-w` | 监听文件变化 | `false` |
-```
+````
 
 ---
 
@@ -228,7 +228,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 
 **突出章节**：Screenshots 必写、Tech Stack 必写、Deploy 必写
 
-```markdown
+````markdown
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
@@ -341,7 +341,7 @@ pnpm test         # unit
 pnpm test:e2e     # e2e (Playwright)
 pnpm typecheck    # tsc
 ```
-```
+````
 
 ---
 
@@ -349,7 +349,7 @@ pnpm typecheck    # tsc
 
 **突出章节**：Endpoints 表格必写、Auth 必写
 
-```markdown
+````markdown
 ## About The Project
 
 <一段讲 API 是干啥的>
@@ -428,7 +428,7 @@ curl -X POST https://api.example.com/v1/auth/login \
 **Error responses:**
 - `400` Invalid request body
 - `409` Email already exists
-```
+````
 
 ---
 
@@ -436,7 +436,7 @@ curl -X POST https://api.example.com/v1/auth/login \
 
 **突出章节**：What you'll learn、Prerequisites、Steps
 
-```markdown
+````markdown
 ## About The Project
 
 > 这份教程会带你从零开始……
@@ -472,9 +472,9 @@ You will learn:
 <details>
 <summary>点击查看完整代码</summary>
 
-\`\`\`ts
+```ts
 // 完整代码
-\`\`\`
+```
 
 </details>
 
@@ -486,14 +486,14 @@ You will learn:
 
 ### 报错 X 怎么办？
 
-\`\`\`bash
+```bash
 # 解决方法
-\`\`\`
+```
 
 ### 性能优化建议？
 
 ……
-```
+````
 
 ---
 
@@ -522,16 +522,16 @@ You will learn:
 
 ### 6.2 折叠长内容
 
-```markdown
+````markdown
 <details>
 <summary>高级配置（点击展开）</summary>
 
-\`\`\`yaml
+```yaml
 # 长配置
-\`\`\`
+```
 
 </details>
-```
+````
 
 ### 6.3 居中内容
 
@@ -604,7 +604,7 @@ $$
 
 ## 8. 反例（避免这么写）
 
-```markdown
+````markdown
 # ❌ 段落式 Description，缺失结构
 This is a project that does things. It has features. To install it, run install.
 The API is documented here. License is MIT.
@@ -626,7 +626,7 @@ git clone
 # ❌ "TBD" 留坑不补
 ## Configuration
 TBD
-```
+````
 
 ---
 
@@ -646,4 +646,4 @@ TBD
 2. 改一个 URL 不用全文搜索
 3. 渲染时 GitHub 自动解析
 
-如果 README 比较短（< 100 行），可以省 TOC，但引用区不要省。
+如果 README 比较短（< 200 行，与 SKILL.md Step 6 自检口径一致），可以省 TOC，但引用区不要省。

@@ -336,16 +336,16 @@ npm run dev
 
 ````markdown
 ```diff
-+ 新增的行
-- 删除的行
-! 重要的修改
-# 注释行（灰色）
++ 新增的行（渲染为绿色）
+- 删除的行（渲染为红色）
+@@ -12,6 +12,8 @@ 变更块定位标记
 ```
 ````
 
 ### 规则
 
 - 三个反引号 + `diff`（不是 `bash`）
+- **GitHub 只给 `+` / `-` / `@@` 开头的行着色**；`!`、`#` 等其他前缀没有任何特殊渲染，别当"注释"用
 - 只在讲"代码改动"时用（版本对比、迁移指南）
 - README 里**很少用**——只在 Changelog / Migration 段落出现
 
@@ -355,7 +355,7 @@ npm run dev
 
 ### 折叠（Details）
 
-```html
+````html
 <details>
 <summary>点击展开</summary>
 
@@ -367,7 +367,7 @@ echo "nested code block"
 ```
 
 </details>
-```
+````
 
 **规则**：
 - 折叠用于"补充信息"（可选展开），**不要把必读内容折叠**
@@ -583,8 +583,8 @@ echo "nested code block"
 | 自动链接 | `<url>` | ✅ |
 | HTML 元素 | `<details>` 等 | ✅ |
 | diff | ` ```diff ` | ✅（GFM 扩展） |
-| 数学公式 | `$...$` / `$$...$$` | ⚠️ 部分支持（KaTeX） |
-| Mermaid | ` ```mermaid ` | ⚠️ 仅 GitHub 部分支持 |
+| 数学公式 | `$...$` / `$$...$$` | ✅ GitHub / GitLab（KaTeX）；其他平台不一定 |
+| Mermaid | ` ```mermaid ` | ✅ GitHub / GitLab 原生渲染；其他平台不一定 |
 
 ---
 

@@ -1,0 +1,8 @@
+{
+  "name": "article-valuator",
+  "version": "0.1.0",
+  "description": "Evaluate whether an article is worth reading: scores depth, actionability, novelty and relevance, then returns a 10-point verdict with evidence.",
+  "author": { "name": "uwakeme" },
+  "license": "MIT",
+  "skills": "."
+}

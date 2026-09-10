@@ -1,0 +1,8 @@
+{
+  "name": "readme-craft",
+  "version": "0.1.0",
+  "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present.",
+  "author": { "name": "uwakeme" },
+  "license": "MIT",
+  "skills": "."
+}

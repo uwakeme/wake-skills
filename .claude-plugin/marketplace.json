@@ -1,0 +1,54 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "wake-skills",
+  "description": "Wake's personal skill collection: article evaluation and README writing skills for ZCode.",
+  "description_i18n": {
+    "en": "Wake's personal skill collection: article evaluation and README writing skills for ZCode.",
+    "zh-CN": "Wake 的个人技能合集：文章价值评估与 README 撰写技能。"
+  },
+  "owner": {
+    "name": "uwakeme"
+  },
+  "plugins": [
+    {
+      "name": "article-valuator",
+      "source": "./article-valuator",
+      "description": "Evaluate whether an article is worth reading: fetches the page (or takes pasted text), scores depth, actionability, novelty and relevance, then returns a 10-point verdict with evidence.",
+      "description_i18n": {
+        "en": "Evaluate whether an article is worth reading: fetches the page (or takes pasted text), scores depth, actionability, novelty and relevance, then returns a 10-point verdict with evidence.",
+        "zh-CN": "评估文章值不值得读：抓取链接正文（或分析粘贴文本），按深度、可操作性、新颖度、相关性四维打分，给出 10 分制结论与理由。"
+      },
+      "version": "0.1.0",
+      "author": {
+        "name": "uwakeme"
+      },
+      "category": "productivity",
+      "keywords": [
+        "article",
+        "reading",
+        "evaluation",
+        "skills"
+      ]
+    },
+    {
+      "name": "readme-craft",
+      "source": "./readme-craft",
+      "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present.",
+      "description_i18n": {
+        "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present.",
+        "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。"
+      },
+      "version": "0.1.0",
+      "author": {
+        "name": "uwakeme"
+      },
+      "category": "documentation",
+      "keywords": [
+        "readme",
+        "documentation",
+        "gfm",
+        "skills"
+      ]
+    }
+  ]
+}

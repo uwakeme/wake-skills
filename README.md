@@ -22,6 +22,18 @@
 
 ## 安装
 
+### 作为 ZCode 插件市场
+
+本仓库同时是一个 ZCode 插件市场（marketplace manifest 在 `.claude-plugin/marketplace.json`），在 ZCode 里添加插件市场时填入仓库地址即可：
+
+```
+https://github.com/uwakeme/Wake-Skills.git
+```
+
+添加后可以按插件安装 `article-valuator` 或 `readme-craft`（每个 skill 一个独立插件，清单在其目录下的 `.claude-plugin/plugin.json`）。
+
+### 作为 Mavis skill 仓库
+
 全局安装（所有 agent 可见）：
 
 ```powershell
@@ -46,6 +58,8 @@ mavis skill install https://github.com/uwakeme/Wake-Skills -a <agent-name>
 
 ```
 <skill-name>/
+├── .claude-plugin/
+│   └── plugin.json    # ZCode 插件清单（skills: "." 指向本目录）
 ├── SKILL.md           # 必备，frontmatter 含 name / description
 └── references/        # 可选，详细参考（按需回查，不进主 context）
 ```

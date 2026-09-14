@@ -33,12 +33,12 @@
     {
       "name": "readme-craft",
       "source": "./readme-craft",
-      "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present.",
+      "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
       "description_i18n": {
-        "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present.",
-        "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。"
+        "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
+        "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。"
       },
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "uwakeme"
       },
@@ -48,6 +48,26 @@
         "documentation",
         "gfm",
         "skills"
+      ]
+    },
+    {
+      "name": "readme-banner",
+      "source": "./readme-banner",
+      "description": "Generate GitHub README header banner. Two paths: let an LLM write clean SVG directly (preferred, small and editable), or use image AI (Midjourney / DALL-E / SDXL) and vectorize the output. Also supports running both and comparing 3 candidates from each.",
+      "description_i18n": {
+        "en": "Generate GitHub README header banner. Two paths: let an LLM write clean SVG directly (preferred, small and editable), or use image AI (Midjourney / DALL-E / SDXL) and vectorize the output. Also supports running both and comparing 3 candidates from each.",
+        "zh-CN": "为 GitHub README 生成顶部 banner / hero 图，支持两种路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。同时支持两种都跑、各 3 张候选对比。"
+      },
+      "version": "0.1.0",
+      "author": {
+        "name": "uwakeme"
+      },
+      "category": "design",
+      "keywords": [
+        "readme",
+        "banner",
+        "svg",
+        "design"
       ]
     }
   ]

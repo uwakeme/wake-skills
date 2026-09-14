@@ -8,9 +8,9 @@
 
 ### [readme-craft](./readme-craft)
 
-生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。
+生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。
 
-覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 3 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味）。
+覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 4 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成）。
 
 触发词：`生成 README`、`写 README`、`补项目文档`、`新项目初始化 README`。
 
@@ -19,6 +19,12 @@
 评估一篇文章值不值得读/学。输入链接（自动抓取正文，含微信公众号反爬兜底策略）或粘贴文本，按 **深度与信息密度 / 可操作性 / 新颖度与时效 / 相关性** 四维打分（各带一句原文证据），输出 10 分制总分 + 明确结论（精读/浏览/跳过）+ 理由，可选继续生成内容摘要 / 亮点与槽点 / 阅读指南。
 
 触发词：`这篇文章值不值得读`、`评估这个链接`、`这篇文章有价值吗`、`要不要收藏这篇`、`这是不是软文`、`看看这个有没有干货`。
+
+### [readme-banner](./readme-banner)
+
+为 GitHub README 顶部生成 hero / banner 图。两种生成路径可选：让 LLM 直接写干净的 SVG 代码（首选，体积小、可二次编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。也支持两种都跑、各出 3 张候选对比。带 3 份 reference：`prompt-svg.md` / `prompt-image.md` / `design-spec.md`。
+
+触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`。
 
 ## 安装
 

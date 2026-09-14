@@ -1,0 +1,8 @@
+{
+  "name": "readme-banner",
+  "version": "0.1.0",
+  "description": "为 GitHub README 生成 header banner / hero 图。两种生成路径：LLM 直接写 SVG，或图像 AI 出图再矢量化。",
+  "author": { "name": "uwakeme" },
+  "license": "MIT",
+  "skills": "."
+}

@@ -33,7 +33,7 @@
 本仓库同时是一个 ZCode 插件市场（marketplace manifest 在 `.claude-plugin/marketplace.json`），在 ZCode 里添加插件市场时填入仓库地址即可：
 
 ```
-https://github.com/uwakeme/Wake-Skills.git
+https://github.com/uwakeme/wake-skills.git
 ```
 
 添加后可以按插件安装 `article-valuator` 或 `readme-craft`（每个 skill 一个独立插件，清单在其目录下的 `.claude-plugin/plugin.json`）。
@@ -44,16 +44,16 @@ https://github.com/uwakeme/Wake-Skills.git
 
 ```powershell
 # 整个仓库
-mavis skill install https://github.com/uwakeme/Wake-Skills
+mavis skill install https://github.com/uwakeme/wake-skills
 
 # 只装 readme-craft
-mavis skill install https://github.com/uwakeme/Wake-Skills/tree/main/readme-craft
+mavis skill install https://github.com/uwakeme/wake-skills/tree/main/readme-craft
 ```
 
 指定 agent：
 
 ```powershell
-mavis skill install https://github.com/uwakeme/Wake-Skills -a <agent-name>
+mavis skill install https://github.com/uwakeme/wake-skills -a <agent-name>
 ```
 
 安装后**下一个 session** 即可使用，daemon 不需要重启。

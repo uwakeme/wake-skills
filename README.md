@@ -26,6 +26,12 @@
 
 触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`。
 
+### [changelog-craft](./changelog-craft)
+
+维护符合 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/) 规范、说人话的 CHANGELOG.md。双模式：提交时逐笔判定改动是否值得写一条（追加进 `Unreleased` 段、随同一次 commit 提交），发版时把 `Unreleased` 归段成新版本并对照 git log 补漏。纯写作边界——不碰 tag、不碰发布。
+
+触发词：`生成 CHANGELOG`、`写 changelog`、`更新更新日志`、`这个版本改了啥`、`提交`（提交意图命中先过判定规则）。
+
 ## 安装
 
 ### 作为 ZCode 插件市场

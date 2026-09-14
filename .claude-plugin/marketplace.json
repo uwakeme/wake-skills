@@ -69,6 +69,26 @@
         "svg",
         "design"
       ]
+    },
+    {
+      "name": "changelog-craft",
+      "source": "./changelog-craft",
+      "description": "Maintain a Keep a Changelog 1.1.0-compliant, human-sounding CHANGELOG.md. Per-commit mode checks whether a change deserves an entry (appended to Unreleased and committed together); release mode consolidates Unreleased into a version section, backfilling from git log.",
+      "description_i18n": {
+        "en": "Maintain a Keep a Changelog 1.1.0-compliant, human-sounding CHANGELOG.md. Per-commit mode checks whether a change deserves an entry (appended to Unreleased and committed together); release mode consolidates Unreleased into a version section, backfilling from git log.",
+        "zh-CN": "维护符合 Keep a Changelog 1.1.0 规范、说人话的 CHANGELOG.md。逐笔模式在提交时判定改动是否值得写一条（追加进 Unreleased 并随本次提交），成段模式在发版时把 Unreleased 归段成新版本并对照 git log 补漏。"
+      },
+      "version": "0.1.0",
+      "author": {
+        "name": "uwakeme"
+      },
+      "category": "documentation",
+      "keywords": [
+        "changelog",
+        "release-notes",
+        "git",
+        "skills"
+      ]
     }
   ]
 }

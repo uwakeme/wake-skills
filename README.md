@@ -1,6 +1,6 @@
 # Wake-Skills
 
-个人 Mavis skill 仓库。每个 skill 一个目录，遵循 `mavis skill install <git-url>` 的标准约定。
+个人 skill 仓库，一套 skill 同时适配两种格式：**Mavis skill**（每个 skill 一个目录，遵循 `mavis skill install <git-url>` 的标准约定）和 **ZCode 插件**（每个 skill 都带 `.claude-plugin/plugin.json` 清单，整个仓库可作为一个 ZCode 插件市场添加）。
 
 > **Mavis** 是 MiniMax 出品的 self-hosted multi-agent runtime。skill 是给 agent 加能力的最小单元——一个 `SKILL.md` 加几份 `references/*.md` 就够了。
 
@@ -36,7 +36,7 @@
 https://github.com/uwakeme/wake-skills.git
 ```
 
-添加后可以按插件安装 `article-valuator` 或 `readme-craft`（每个 skill 一个独立插件，清单在其目录下的 `.claude-plugin/plugin.json`）。
+添加后可以按插件安装 `article-valuator`、`readme-craft` 或 `readme-banner`（每个 skill 一个独立插件，清单在其目录下的 `.claude-plugin/plugin.json`）。
 
 ### 作为 Mavis skill 仓库
 

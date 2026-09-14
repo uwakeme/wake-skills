@@ -1,0 +1,8 @@
+{
+  "name": "changelog-craft",
+  "version": "0.1.0",
+  "description": "Maintain a Keep a Changelog 1.1.0-compliant, human-sounding CHANGELOG.md with per-commit entry checks and release-time consolidation.",
+  "author": { "name": "uwakeme" },
+  "license": "MIT",
+  "skills": "."
+}

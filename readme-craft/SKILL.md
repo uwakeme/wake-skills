@@ -45,6 +45,8 @@ source: "self-authored"
   - 跳过询问的情形：用户明确说"不要问"、给具体语言列表、或选已有的 README 文件作为唯一源
 - **是否覆盖已有 README**：默认备份后全量重写（`README.md.bak`）
   - 用户明确说"增量"才做局部更新
+- **README banner**：默认自动生成，不问（能力检测与降级见 Step 4.5）
+  - 用户说"不要 banner"、或现有 README 已引用可用的 banner / logo 图时跳过
 
 ---
 
@@ -66,6 +68,17 @@ source: "self-authored"
 | .NET | `*.csproj`、`*.sln` |
 
 > 这是必做步骤——不读 manifest 就在 README 里写技术栈，几乎一定会猜错。
+
+**顺带收集 git 元信息**（只读命令，不做任何修改）：
+
+```bash
+git rev-parse --is-inside-work-tree   # 是否 git 仓库（命令失败再退回检查 .git 目录是否存在）
+git describe --tags --abbrev=0        # 最新 tag（没有任何 tag 时非零退出）
+git remote get-url origin             # remote URL，从中提取 <user>/<repo>
+```
+
+- `<user>/<repo>` 是后续所有 GitHub 徽章和链接的原料：`git@github.com:user/repo.git` 和 `https://github.com/user/repo.git` 都取 `user/repo`；其余 host（GitLab、自建等）记为"非 GitHub"
+- 这三项结果在 Step 1.6（tag 检查）和 Step 5（徽章行）都会用到
 
 ### Step 1.5 — 选择 README 语言（默认必走）
 
@@ -90,6 +103,34 @@ options:
 5. 如果用户主动说"不要问"、"按英文来"、"按上次的选择"，跳过本步直接用上次 / 默认值
 
 **注意**：主 README（第一个语言）承担"完整版"角色，其他语言版本可以稍精简——但**所有版本都要可独立阅读**，内容不能靠"见 README.md"这类跨语言引用兜底（末尾导航性的"其他语言"清单除外，见 `references/i18n.md` §6）。
+
+### Step 1.6 — git tag 检查（无 tag 时询问）
+
+依据 Step 1 的 git 检测结果分支：
+
+| 情况 | 动作 |
+| --- | --- |
+| 非 git 仓库 | 跳过本步，不打扰用户 |
+| 已有 tag | 记录最新 tag 值（供 Step 5 徽章用），跳过本步 |
+| 是 git 仓库但没有任何 tag | **询问用户是否创建**（见下） |
+
+**询问**（优先用 `ask_user` 工具，环境没有该工具时在回复里列出选项问一次）：
+
+```yaml
+question: "项目还没有 git tag，要创建一个吗？（有了 tag，version 徽章和 Releases 页才有内容）"
+options:
+  - 创建 tag（推荐）
+  - 跳过
+```
+
+- **创建**：tag 名建议 `v<Step 1 读到的 manifest version>`（如 `v1.2.3`）；manifest 没有 version 字段就让用户输入版本号。执行：
+
+  ```bash
+  git tag -a v1.2.3 -m "Release v1.2.3"
+  ```
+
+  **绝不自动 push**——只创建本地 tag，在 Step 7 报告里提醒用户推送命令
+- **跳过**：version 徽章走 Step 5 的降级路径，不追问
 
 ### Step 2 — 读取 AI 上下文（可选，但强烈建议）
 
@@ -135,13 +176,45 @@ options:
 
 > 选错模板类型是最常见的失败原因——把 CLI 的 README 写成 web-app 风格会导致全篇违和。
 
+### Step 4.5 — README banner（能力检测，默认生成）
+
+判断环境有没有"生图办法"，按能力阶梯取第一条命中的路径：
+
+| 优先级 | 路径 | 命中条件 | 产物 |
+| --- | --- | --- | --- |
+| 1 | **A：直接写 SVG** | **永远命中**——能写文本文件就能写 SVG | `assets/banner.svg` |
+| 2 | **B：生图工具出图** | 本 session 可用工具里有"按文字描述生成图片"的能力（内置生图 / MCP 生图） | `assets/banner.png` |
+| — | 跳过 | 用户说"不要 banner"，或现有 README 已引用一张可用的 banner / logo 图 | 无 |
+
+**默认走 A，且不问用户**——写 SVG 的成本等于写一段代码，用户不要 banner 会明确说。B 只在用户主动要求位图 / 复杂视觉时才用；环境有生图工具但用户没提，仍走 A，报告里提一句"可以用生图工具重出位图风格"。
+
+**输入全部复用前序步骤，不新增提问**：
+
+- 项目名 ← Step 1 manifest 的 `name`
+- 技术栈标签 ← Step 1 dependencies 里最核心的 2-4 个
+- 风格 ← Step 4 项目类型映射（library / CLI → 暗色科技；web-app → 渐变彩色；tutorial / docs → 极简白底）
+- 布局、配色、GitHub 渲染硬约束、生成流程 → **按 `references/banner.md` 执行**
+
+**产物**：`<project-root>/assets/banner.svg`，嵌入方式（供 Step 5 第 1 个 section 使用）：
+
+```markdown
+<div align="center">
+  <img src="./assets/banner.svg" alt="{{PROJECT_NAME}}" width="100%">
+</div>
+```
+
+**多语言注意**：所有语言版本**共用一张 banner**，图内文字保持语言中立（项目名 + 技术栈），tagline 不进图——tagline 归各语言版本的文字层（单语言项目可以进）。
+
+> banner 属于锦上添花：任何一步失败（推不出项目名、SVG 超重、用户反悔）都直接跳过或降级，不阻塞 README 主流程。
+
 ### Step 5 — 撰写 README
 
 按 Best-README-Template 的标准化结构产出。每个 section 的具体写法见 `references/templates.md`；**每条 GFM 语法的规则、陷阱、最佳实践见 `references/gfm-syntax.md`**；**反 AI 味硬规则（破折号节制、标题禁 emoji、Features 不用 inline-header 列表、AI 高频词替换表）见 `references/humanizer-rules.md`**。三份文件按需回查，本节只规定**通用规则**和**顺序**。
 
 **必须按顺序包含的 section**（缺一个都不算合格）：
 
-1. **Logo + Title + Tagline**（居中，HTML `<div align="center">` 包裹）
+1. **Banner（如有）+ Title + Tagline**（居中，HTML `<div align="center">` 包裹）
+   - Step 4.5 生成了 banner：`<img>` 放最顶，`# 项目名` 的 H1 **仍要保留**——SVG 内文字读屏读不到，社交预览和目录锚点也靠这个标题；没有 banner 时按 logo / 纯标题原样
 2. **Shields 徽章行**（build / version / license / stars，按实际能填的填，不可获得的不要写）
 3. **Table of Contents**（`<details>` 折叠；全文 < 200 行可省略，与 Step 6 自检口径一致）
 4. **About / 项目简介**（2-3 句，"这是啥、给谁用、解决啥问题"）
@@ -219,6 +292,23 @@ options:
 [contributors-url]: https://github.com/<user>/<repo>/graphs/contributors
 ```
 
+**version 徽章取值判定**（按顺序命中第一个就停，来源：Step 1 的 git 检测 + Step 1.6）：
+
+1. GitHub 仓库且有 tag → **动态徽章**，发布新版本后自动更新，不会过期：
+
+   ```markdown
+   [version-shield]: https://img.shields.io/github/v/release/<user>/<repo>.svg?style=for-the-badge
+   [version-url]: https://github.com/<user>/<repo>/releases
+   ```
+
+2. 非 GitHub 托管、用户跳过创建 tag、或无 tag 但 manifest 有 version → **静态徽章**（值写死在 URL 里，注意发布新版本后要手动更新）：
+
+   ```markdown
+   [version-shield]: https://img.shields.io/badge/version-1.2.3-blue?style=for-the-badge
+   ```
+
+3. 两者都不可得 → 不写 version 徽章
+
 ### Step 6 — 自检
 
 写完后过一遍：
@@ -231,6 +321,7 @@ options:
 - [ ] 文档 > 200 行时，TOC 存在
 - [ ] 没有任何空 section（"## License" 后面必须有内容）
 - [ ] 中英混排时两边都通顺
+- [ ] 有 banner 时：文件真实存在于 `assets/`、README 引用路径正确、`<title>` 不是空话
 
 ### Step 7 — 写入并报告
 
@@ -239,12 +330,12 @@ options:
 1. **第一个语言**（默认是 English，见 Step 1.5；用户明确指定唯一语言时按用户要求）→ 写入 `<project-root>/README.md`
 2. **后续每个语言** → 写入 `<project-root>/README.<bcp47>.md`（如 `README.zh-CN.md`、`README.ja.md`）
 3. 已有同名文件 → 先备份为 `<file>.bak` 再覆盖；若 `.bak` 已存在，改用带时间戳的 `<file>.<YYYYMMDD-HHMMSS>.bak`，**绝不覆盖旧备份**（更早的备份才是用户的原始文件）
-4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`
+4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`；生成过 banner 追加：`banner: assets/banner.svg（X KB，路径 A）`；Step 1.6 创建过 tag 时追加一句：`已创建本地 tag v1.2.3（未推送，推送请执行 git push origin v1.2.3）`
 
 **翻译原则**（多语言版本必须遵守，详见 `references/i18n.md`）：
 - ✅ 翻译：所有自然语言段落、bullet、Alert 文字、表格描述、代码注释
 - ⚠️ 章节标题：默认**不翻译标题 key**（i18n.md §4 方案 A，如中英版都用 `## Features`）；用户明确要求"完全本地化观感"时才整篇翻译标题（方案 B）
-- ❌ 不翻译：shields 徽章 URL、Markdown 链接、命令/路径/文件名、ASCII 树、技术术语
+- ❌ 不翻译：shields 徽章 URL、Markdown 链接、命令/路径/文件名、ASCII 树、技术术语、banner 图（所有语言共用一张，图内文字语言中立）
 - ⚠️ 代码块内的注释视上下文可翻译，但**标识符本身绝对不翻译**
 
 ---
@@ -254,6 +345,7 @@ options:
 - 写入 `<project-root>/README.md`（主 README，第一个语言）+ `<project-root>/README.<bcp47>.md` ×（N-1）
 - 文档长度 200–600 行/语言（视项目复杂度）
 - 包含 Best-README-Template 风格：徽章、TOC、back-to-top、底部引用区
+- banner：默认生成 `assets/banner.svg` 并在主 README 顶部引用；跳过时在报告里说明原因（无名字来源 / 用户拒绝 / 已有现成图）
 - 每个 section 都有实际内容；不允许出现"待补充"、"TBD"、占位用户名
 - 遵循 GFM 规范（表格、代码块、Alerts、折叠、diff 都能正确渲染）
 - 多语言版本结构对齐（章节顺序、section 标题一致），便于读者对照
@@ -269,11 +361,19 @@ options:
 | 已有 README 且 ≥ 50 行 | 先备份再覆盖（`.bak` 已存在时改用带时间戳名，不覆盖旧备份），告诉用户 |
 | AGENTS.md / CLAUDE.md 含敏感信息 | 提取事实，绝不原样照抄；敏感字符串替换为 `your-api-key` |
 | shields.io 链接失效 | 删掉对应徽章，或在 README 末尾加 `<!-- TODO: 替换失效徽章 -->` 并告知用户 |
+| 非 git 仓库（无 `.git`） | 跳过 Step 1.6 的 tag 询问和 GitHub 徽章，version 徽章按 manifest 降级 |
+| git 仓库无 tag，用户拒绝创建 | 不追问；version 徽章降级为 manifest 静态值或省略 |
+| git 不可用 / 命令失败 | 退回用 `.git` 目录是否存在来判断是否 git 仓库；仍无法判定就按无 tag 处理 |
 | 用户没指定项目路径 | 默认当前工作目录 |
 | 用户说"和原来一样" | 不动；增量更新要明确说"增量" |
 | 默认路径下用户漏选 English | 强制加入（English 必选，详见 Step 1.5）；用户明确指定了语言清单的除外 |
 | 用户给的 BCP-47 不规范（如 `chinese`、`簡中`） | 归一化为标准标签（`zh-CN`、`zh-TW` 等）；归一不了就追问 |
 | 翻译某语言时遇到不能翻译的梗/双关 | 用同语言等价物替换；如果找不到就保持字面意思并在注释里说明 |
+| 推不出项目名（无 manifest 且无目录名可用） | 跳过 banner——图里不能写猜出来的名字 |
+| 手写 SVG 超 6KB | 删装饰符号 / 角标重写一次；仍超就保留并在报告说明 |
+| 现有 README 已有 banner / logo 图 | 沿用现成的，不生成也不覆盖（见 Step 4.5） |
+| B 路径生图失败 / 产物质量差 | 退回 A 路径手写 SVG，告诉用户原因 |
+| 用户中途说"不要 banner 了" | 删掉 banner 文件 + 移除 README 里的引用，不追问 |
 
 ---
 
@@ -283,7 +383,7 @@ options:
 
 **操作**：扫描 → 读 AGENTS.md 提取风格 → 推断类型 library → Step 1.5 多选询问（用户选 en + zh-CN）→ 选 library 模板 → 撰写英文版 → 翻译成中文版
 
-**输出**：`./README.md`（英文，主）+ `./README.zh-CN.md`（中文），library 模板，5 个 shields、9 个核心 section，结构对齐
+**输出**：`./README.md`（英文，主）+ `./README.zh-CN.md`（中文），library 模板，5 个 shields、9 个核心 section，结构对齐，附带 `assets/banner.svg`（暗色科技风，两个语言版共用）
 
 **输入**：用户说"把我的项目 README 改成中文，语气轻松点"
 
@@ -295,6 +395,12 @@ options:
 
 **操作**：跳过 Step 1.5 多选（用户已经指定）→ 撰写三种语言版本 → 写入 `README.md`（en）+ `README.zh-CN.md` + `README.ja.md`
 
+**输入**：用户说"写个 README，banner 不要自动生成"
+
+**操作**：其余流程不变，Step 4.5 直接跳过，顶部按纯标题 + tagline 排
+
+**输出**：README.md，无 banner 文件、顶部无 `<img>`
+
 ---
 
 ## 与相邻 skill 的边界
@@ -304,9 +410,10 @@ options:
 | 标准化、人性化、多样化的 README | **readme-craft**（这个 skill） |
 | CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层维护 | `human-ai-docs`（如已安装） |
 | Rails 命令级细节（bin/dev、Kamal、credentials） | `readme`（如已安装） |
+| 只给现有 README 单独出 banner / 要多候选对比 / 图像 AI 出图 | `readme-banner`（如已安装；readme-craft 内置的是单张 SVG 的默认路径） |
 
 ---
 
 ## Windows (win32) platform notes
 
-纯流程型 skill：扫描文件、读 manifest、写 README 全用 Read / Write / Glob / Grep 工具，不涉及 shell 命令调用，无需 PowerShell 适配。
+流程型 skill：扫描文件、读 manifest、写 README 全用 Read / Write / Glob / Grep 工具。shell 仅用于 git：Step 1 的只读检测（`rev-parse` / `describe` / `remote`）和 Step 1.6 经用户确认的 `git tag` 创建——命令本身跨平台，Git Bash / PowerShell 通用，无需适配。banner 的 A 路径（手写 SVG）同样只用 Write 写文本文件，无平台差异；可选的 `npx svgo` 压缩和 B 路径的生图工具属于外部能力，不可用时按 Step 4.5 降级跳过。

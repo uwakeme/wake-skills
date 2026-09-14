@@ -456,7 +456,10 @@ echo "nested code block"
 <!-- License -->
 [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](./LICENSE)
 
-<!-- Version -->
+<!-- Version（GitHub 仓库优先用动态端点，跟随最新 release 自动更新） -->
+[![Version](https://img.shields.io/github/v/release/<user>/<repo>.svg?style=for-the-badge)](https://github.com/<user>/<repo>/releases)
+
+<!-- Version（非 GitHub 托管 / 无 tag 时的降级写法，值写死要注意随发布更新） -->
 [![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)](https://github.com/<user>/<repo>/releases)
 
 <!-- Build Status -->
@@ -471,6 +474,7 @@ echo "nested code block"
 | 规则 | 说明 |
 | --- | --- |
 | **URL 不要占位符** | `YOUR-USERNAME` 之类必须替换成真实值 |
+| **version 徽章用动态端点** | GitHub 仓库优先 `img.shields.io/github/v/release/<user>/<repo>`（自动跟随最新 release，不会过期）；静态 `badge/version-x.y.z` 只作无 tag / 非 GitHub 时的降级 |
 | **4-7 个为佳** | 多了视觉杂乱 |
 | **用 `for-the-badge` 样式** | 更醒目，跟 GitHub UI 风格匹配 |
 | **logo 在 simpleicons 查** | https://simpleicons.org |
@@ -486,7 +490,7 @@ echo "nested code block"
 <!-- 文末定义 -->
 [license-shield]: https://img.shields.io/badge/license-MIT-green?style=for-the-badge
 [license-url]: ./LICENSE
-[version-shield]: https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge
+[version-shield]: https://img.shields.io/github/v/release/<user>/<repo>.svg?style=for-the-badge
 [version-url]: https://github.com/<user>/<repo>/releases
 ```
 

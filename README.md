@@ -32,6 +32,12 @@
 
 触发词：`生成 CHANGELOG`、`写 changelog`、`更新更新日志`、`这个版本改了啥`、`提交`（提交意图命中先过判定规则）。
 
+### [homepage-craft](./homepage-craft)
+
+为开源项目生成优美的主页：扫描仓库（manifest、README、截图、git 元信息），产出单文件 HTML landing page（默认 `docs/index.html`，推上 GitHub Pages 即发布）。内容 100% 来自仓库真实素材，不编造数字和占位图。核心特性是**编排已安装的设计类 skill**——探测到 `ui-ux-pro-max` 就用它出设计系统、`frontend-design` / `superdesign` 管实现美感，一个都没装时退回内置设计基线（三风格方向 + 反 AI-slop 清单）。生成后可经用户确认**自动部署到 GitHub Pages**（commit + push + `gh` 开启 Pages；gh 不可用时降级为只推代码并给出手动开启步骤）。带 2 份 reference：`page-anatomy.md` 管章节结构与自检、`design-baseline.md` 管兜底美学。
+
+触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`把 README 变成网页`、`把主页部署上线`。
+
 ## 安装
 
 ### 作为 ZCode 插件市场
@@ -42,7 +48,7 @@
 https://github.com/uwakeme/wake-skills.git
 ```
 
-添加后可以按插件安装 `article-valuator`、`readme-craft` 或 `readme-banner`（每个 skill 一个独立插件，清单在其目录下的 `.claude-plugin/plugin.json`）。
+添加后上述每个 skill 都可以按插件独立安装（清单在各目录下的 `.claude-plugin/plugin.json`）。
 
 ### 作为 Mavis skill 仓库
 

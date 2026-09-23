@@ -1,0 +1,8 @@
+{
+  "name": "homepage-craft",
+  "version": "0.1.0",
+  "description": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user.",
+  "author": { "name": "uwakeme" },
+  "license": "MIT",
+  "skills": "."
+}

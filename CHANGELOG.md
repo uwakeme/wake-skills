@@ -18,6 +18,7 @@
 
 ### Fixed
 
+- readme-craft 生成的 README 不再每个 section 都挂 back-to-top：只在一屏放不下的长大节末尾保留，License / Authors / Contact 等收尾小节与文档末尾一律不加（readme-craft 0.2.1）（[5212ddd]）
 - 按安全评估结果修复 readme-craft 与 article-valuator 两个技能的安全漏洞、逻辑矛盾与文档渲染损坏问题（[0e971a4]）
 
 ### Internal Changes
@@ -35,3 +36,4 @@
 [15a072a]: https://github.com/uwakeme/wake-skills/commit/15a072a
 [0b993ce]: https://github.com/uwakeme/wake-skills/commit/0b993ce
 [b788a93]: https://github.com/uwakeme/wake-skills/commit/b788a93
+[5212ddd]: https://github.com/uwakeme/wake-skills/commit/5212ddd

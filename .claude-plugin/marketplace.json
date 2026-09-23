@@ -93,12 +93,12 @@
     {
       "name": "homepage-craft",
       "source": "./homepage-craft",
-      "description": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user.",
+      "description": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user, who also picks the publishing strategy: ship with the main branch + /docs, or isolate on a dedicated gh-pages branch.",
       "description_i18n": {
-        "en": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user.",
-        "zh-CN": "为开源项目生成优美的单文件 HTML 主页：扫描仓库（manifest、README、截图、git 元信息），产出可直接发布到 GitHub Pages 的 docs/index.html。自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）提升视觉质量，未安装时退回内置设计基线。生成后可经用户确认自动部署到 GitHub Pages（commit + push + gh 开启 Pages）。"
+        "en": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user, who also picks the publishing strategy: ship with the main branch + /docs, or isolate on a dedicated gh-pages branch.",
+        "zh-CN": "为开源项目生成优美的单文件 HTML 主页：扫描仓库（manifest、README、截图、git 元信息），产出可直接发布到 GitHub Pages 的 docs/index.html。自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）提升视觉质量，未安装时退回内置设计基线。生成后可经用户确认自动部署到 GitHub Pages（commit + push + gh 开启 Pages），发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。"
       },
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "uwakeme"
       },

@@ -6,7 +6,8 @@ description: |
   自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）
   提升视觉质量——ui-ux-pro-max 出设计系统，frontend-design 管实现美感；
   一个都没装时退回内置设计基线（references/design-baseline.md），不阻塞主流程。
-  生成后可选自动部署到 GitHub Pages（commit + push + gh 开启 Pages），先询问再动手。
+  生成后可选自动部署到 GitHub Pages（commit + push + gh 开启 Pages），先询问再动手；
+  发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。
 
   触发："给项目生成主页"、"做一个 landing page"、"生成项目官网"、"GitHub Pages 首页"、
   "project homepage"、"把 README 变成网页"、"开源项目展示页"、"给我的库做个介绍页"、
@@ -47,6 +48,7 @@ source: "self-authored"
 - **页面语言**：默认跟随主 README 的语言，不问；用户指定了其他语言按用户的来
 - **风格偏好**（可选）：用户主动说了（"暗色"、"极简"）就记录；没说且有 companion 设计 skill 时交给它决定；两者都没有时，从基线三方向里按项目类型选，不追问（见 Step 3）
 - **部署意向**：不预设、不提前问——Step 7 生成完毕后再询问；用户一开始就明确说"部署到 GitHub Pages"的，Step 7 免询问直接走
+- **发布策略**：同样在 Step 7 与部署意向一起问（A：main + /docs；B：独立 gh-pages 分支），不预设默认偏好；用户在需求里指定了（"走 gh-pages"、"别动 main"）就跳过询问
 
 ---
 
@@ -179,7 +181,7 @@ git describe --tags --abbrev=0        # 最新 tag（供 version 展示）
 | git 仓库且 remote 是 GitHub | Step 1 的 `git remote get-url origin` 提取出 `<user>/<repo>` | 非 git / 非 GitHub → 跳过自动部署；GitLab 等提示对应平台的 Pages 手动步骤 |
 | `gh` CLI 已安装且已登录 | `gh auth status`（退出码非 0 即不满足） | 降级为"只 commit + push"，Pages 开关给网页操作路径 |
 
-**询问**（优先用 `ask_user` 工具，环境没有该工具时在回复里列出选项问一次）：
+**询问 1 — 部署意向**（优先用 `ask_user` 工具，环境没有该工具时在回复里列出选项问一次）：
 
 ```yaml
 question: "主页已生成，要部署到 GitHub Pages 吗？"
@@ -190,28 +192,63 @@ options:
 # gh 不可用时第一个选项换成"只 commit + push"，并说明原因
 ```
 
-**自动部署流程**：
+**询问 2 — 发布策略**（仅在选择部署后问；两种都合法，把取舍说给用户听，不替用户拍板）：
+
+```yaml
+question: "主页放哪里发布？两种策略各有适用场景。"
+options:
+  - 随 main 分支 + /docs 目录（推荐）
+  - 独立 gh-pages 分支（main 只留源码）
+```
+
+一句话取舍（询问时附上）：**没有构建步骤、希望主页随仓库内容同 commit 同步**选前者；**要求 main 纯净只放源码、或将来打算上 CI 自动生成主页**选后者。
+
+**策略 A 流程（main + /docs）**：
 
 1. **commit**：只 `git add` 本次生成的文件（逐个列出 `docs/index.html`、`docs/assets/` 下实际拷贝的图片）——**绝不 `git add -A` / `git add .`**，用户工作区里其他未完成的改动不属于这次提交。提交说明风格跟随目标仓库已有提交（如 `docs: add project homepage`）
 2. **push**：`git push origin <当前分支>`——绝不 `--force`、绝不自动 pull/rebase；被拒（落后远端、分支保护）就停下报告原因，由用户决定怎么处理
-3. **开启 Pages**（gh api，先查再动，保证幂等）：
+3. Pages 源 = `<当前分支>` + `/docs`（开启方式见下方"开启 Pages"）
+
+**策略 B 流程（独立 gh-pages 分支）**：
+
+发布拷贝进孤立分支，**全程用 git worktree 在临时目录操作，绝不切换用户工作区的分支**：
+
+1. 本地 `docs/index.html` 保留为**预览副本**（不提交进 main，报告里说明它的角色）
+2. 准备 worktree：
 
    ```bash
-   gh api repos/<user>/<repo>/pages        # 200 = 已开启；404 = 未开启
-   gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source[path]=/docs'
+   # 首次（gh-pages 不存在）：建孤儿分支
+   git worktree add --detach .pages-tmp HEAD
+   git -C .pages-tmp switch --orphan gh-pages
+   # 非首次（gh-pages 已存在）：直接检出
+   git worktree add .pages-tmp gh-pages
    ```
 
-   - 未开启（404）→ POST 创建
-   - 已开启且源就是 `<分支>` + `/docs` → 无需操作，push 完等构建即可
-   - 已开启但**源不同**（如 gh-pages 分支、Jekyll 根目录站）→ **停下来问用户**——切换源会顶掉现有站点，不能替用户决定
-4. **等构建**：`gh api repos/<user>/<repo>/pages/builds/latest --jq .status`，约 15 秒轮询一次，最多等 2 分钟；超时未 built 就先给 URL 并注明"构建中，稍后刷新"
-5. **报告**：公开 URL（Pages 的 `html_url`，通常 `https://<user>.github.io/<repo>/`）、构建状态、commit hash；仓库已有自定义域名的沿用，不碰域名设置
+3. 把 `docs/index.html` 拷为 `.pages-tmp/index.html`（分支根目录），图片拷到 `.pages-tmp/assets/`；孤儿分支首次提交时 worktree 里残留的旧文件都是未跟踪状态，**只 add 拷贝进去的文件**
+4. 在 worktree 内 commit（如 `docs: publish project homepage`）→ `git push origin gh-pages`——绝不 `--force`；分支已存在且落后远端被拒时停下报告
+5. `git worktree remove --force .pages-tmp`
+6. Pages 源 = `gh-pages` + `/`
+
+**开启 Pages**（两策略通用，gh api，先查再动，保证幂等）：
+
+```bash
+gh api repos/<user>/<repo>/pages        # 200 = 已开启；404 = 未开启
+gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source[path]=<路径>'
+# 策略 A：<分支>=当前分支，<路径>=/docs；策略 B：<分支>=gh-pages，<路径>=/
+```
+
+- 未开启（404）→ POST 创建
+- 已开启且源与本次策略一致 → 无需操作，push 完等构建即可
+- 已开启但**源不同**（包括 A/B 策略互切）→ **停下来问用户**——切换源会顶掉现有站点，不能替用户决定
+
+**等构建与报告**（两策略通用）：`gh api repos/<user>/<repo>/pages/builds/latest --jq .status` 约 15 秒轮询一次、最多 2 分钟；超时未 built 先给 URL 注明"构建中"。报告含公开 URL（通常 `https://<user>.github.io/<repo>/`）、构建状态、commit hash、**所用发布策略**；仓库已有自定义域名的沿用，不碰域名设置。
 
 **降级分支**：
 
-- 用户选"只 commit + push"或 gh 不可用 → 执行第 1–2 步后给出网页开启路径：`Settings → Pages → Build and deployment → Source: Deploy from a branch → <分支> + /docs`
+- 用户选"只 commit + push"或 gh 不可用 → 按所选策略执行 commit/push 部分，附网页开启路径：`Settings → Pages → Build and deployment → Source: Deploy from a branch → <分支> + <路径>`（策略 B 还需先在本地完成 worktree 推送，或说明手工步骤）
 - 连 push 条件都不满足（无 remote、无写权限）→ 停在 commit，报告手动步骤
 - 用户选"不部署" → 什么都不做，报告里给建议的提交说明
+- 策略 B 下 worktree 创建失败（磁盘 / 权限）→ 回退策略 A 流程并说明原因
 
 ---
 
@@ -223,7 +260,7 @@ options:
 - 页面内容 100% 来自仓库真实素材；拿不到的数据不展示、不留占位
 - 375px / 768px / 1440px 三档响应式不破版
 - 报告注明美感来源（哪个 companion skill 或哪条基线方向）
-- 选择部署时：commit 只含本次生成的文件，push 成功后开启 Pages 并报告公开 URL；任何一步失败都停在原地说明原因——绝不 force push、绝不静默切换已有的 Pages 源、绝不动用户没让动的仓库设置
+- 选择部署时：commit 只含本次生成的文件，push 成功后按用户所选发布策略开启 Pages（A：页面随 `docs/` 进当前分支提交；B：发布拷贝在 gh-pages 分支根，本地 `docs/index.html` 仅作预览、不进 main 提交），并报告公开 URL；任何一步失败都停在原地说明原因——绝不 force push、绝不静默切换已有的 Pages 源、绝不动用户没让动的仓库设置
 
 ---
 
@@ -245,7 +282,9 @@ options:
 | 页面 HTML 超 200KB | 先查是否误把大图 base64 内联——图片改为文件引用；仍超则精简章节并说明 |
 | 同意部署但 `gh` 未安装 / 未登录 | 降级为"只 commit + push"，附网页开启 Pages 的步骤，提示 `gh auth login` 可解锁全自动 |
 | push 被拒（落后远端 / 分支保护） | 停下报告原因，不 force push、不自动 pull rebase，由用户处理 |
-| 仓库已有 Pages 且源不同 | 询问后再决定，绝不静默切换（会顶掉现有站点） |
+| 仓库已有 Pages 且源不同 | 询问后再决定，绝不静默切换（会顶掉现有站点）；A/B 策略互切同此处理 |
+| 策略 B 下 worktree 创建失败（磁盘 / 权限） | 回退策略 A 流程并说明原因 |
+| 策略 B 下 gh-pages 已存在且落后远端、push 被拒 | 停下报告，不 force push；提示用户先同步该分支 |
 | remote 不是 GitHub（GitLab / 自建） | 跳过自动部署，给对应平台的 Pages 手动指引 |
 | 产物不在 `docs/`（框架占用 / 远程模式） | 自动部署不适用，报告说明手动发布方式 |
 | 工作区有用户未提交的其他改动 | 只 add 本次生成文件，绝不 `git add -A` / `git add .`；改动原样留在工作区 |
@@ -285,6 +324,12 @@ options:
 
 **输出**：新主页已在仓库 `docs/` 里（随 push 上远端），现有站点不受影响；报告说明原委
 
+**输入**：用户选择自动部署，并在询问 2 里选"独立 gh-pages 分支"，理由是要保持 main 只放源码
+
+**操作**：`git worktree add --detach .pages-tmp HEAD` → worktree 内 `switch --orphan gh-pages` → 拷贝 `docs/index.html` 为分支根 `index.html` → 只 add 该文件 → commit + push origin gh-pages → `worktree remove --force` → gh api 开启 Pages（gh-pages + /）→ 轮询构建
+
+**输出**：站点源为 gh-pages 分支；main 未新增任何页面文件，本地 `docs/index.html` 保留为预览副本（报告注明）；公开 URL 照常给出
+
 ---
 
 ## 与相邻 skill 的边界
@@ -301,4 +346,4 @@ options:
 
 ## Windows (win32) platform notes
 
-流程型 skill：扫描、读取、写 HTML、拷贝图片全用 Read / Write / Glob / Grep 工具，无平台差异。shell 用于 git 只读检测、可选的本地预览（`python -m http.server -d docs 8000`，python 不可用时提示用户直接双击 index.html）和 Step 7 的可选部署（`git add/commit/push` 与 `gh api`，均为跨平台命令，Git Bash / PowerShell 通用；gh 未安装时按 Step 7 降级）。浏览器自检用 `file:///D:/...` 形式的绝对 URL（正斜杠）。拷贝图片到 `docs/assets/` 属于文件操作，用工具完成，不依赖 shell 命令。
+流程型 skill：扫描、读取、写 HTML、拷贝图片全用 Read / Write / Glob / Grep 工具，无平台差异。shell 用于 git 只读检测、可选的本地预览（`python -m http.server -d docs 8000`，python 不可用时提示用户直接双击 index.html）和 Step 7 的可选部署（`git add/commit/push`、`git worktree` 与 `gh api`，均为跨平台命令，Git Bash / PowerShell 通用；gh 未安装时按 Step 7 降级）。浏览器自检用 `file:///D:/...` 形式的绝对 URL（正斜杠）。拷贝图片到 `docs/assets/` 属于文件操作，用工具完成，不依赖 shell 命令。

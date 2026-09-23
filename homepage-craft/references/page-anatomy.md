@@ -187,6 +187,7 @@ GitHub Pages 以 `docs/` 为站点根发布时，**站点外的相对路径一�
 **响应式与可访问性**
 
 - [ ] 375px 宽度无横向滚动条；nav 可用；hero 文案不溢出
+- [ ] 含 nowrap 子元素的 grid/flex 容器（命令条、代码块）已设 `min-width: 0` / `minmax(0, 1fr)`——`min-width: auto` 是窄屏横向溢出的头号元凶
 - [ ] 正文对比度 ≥ 4.5:1（拿不准用 python 算相对亮度）
 - [ ] 所有交互元素可聚焦（button 是真 `<button>`，不是 div onclick）
 - [ ] `prefers-reduced-motion` 下无动画残留

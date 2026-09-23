@@ -143,10 +143,11 @@ git describe --tags --abbrev=0        # 最新 tag（供 version 展示）
 
 **有浏览器工具**（browser-use / web-gui-tester 等，检查本 session 可用工具）：
 
-1. 打开 `file:///<绝对路径>/index.html` 截图
+1. 打开页面截图：浏览器工具不支持 `file://` 时（应用内浏览器普遍如此），先起 `python -m http.server -d docs 8000`，打开 `http://127.0.0.1:8000/`
 2. 检查：hero 区完整、无横向滚动条、图片全部加载、复制按钮点击生效、无占位文本残留
-3. 把视口缩到手机宽度（约 390px）再截一张，确认不破版
-4. 发现问题回 Step 4 修，修完复检
+3. 把视口缩到手机宽度（约 390px）再截一张，确认不破版；横向溢出常见元凶是 grid/flex 子元素的 `min-width: auto` 被 nowrap 内容撑开——给该子元素补 `min-width: 0`、轨道用 `minmax(0, 1fr)`
+4. fullPage 拼接截图在 sticky 头部、平滑滚动下易出伪影（分段重复、内容缺失——是捕获问题不是页面问题）；存疑时改用滚动锚点逐段截视口图核对
+5. 发现问题回 Step 4 修，修完复检
 
 **无浏览器工具**：按 `references/page-anatomy.md` 末尾的自检清单逐项过——grep 占位符残留（`TODO`、`xxx`、`YOUR-`、`lorem`）、核对引用的资源路径真实存在、检查标签配对。
 

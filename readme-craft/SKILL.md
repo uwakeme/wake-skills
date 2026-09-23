@@ -25,7 +25,7 @@ source: "self-authored"
 
 | 原则 | 含义 | 反例 |
 | --- | --- | --- |
-| **标准化** | 固定章节顺序、固定徽章格式、固定 back-to-top 链接、底部统一 reference-style 引用 | 每个 README 章节顺序都不同；徽章有的用 shield 有的用别家 |
+| **标准化** | 固定章节顺序、固定徽章格式、back-to-top 只在长大节末尾、底部统一 reference-style 引用 | 每个 README 章节顺序都不同；徽章有的用 shield 有的用别家；每个 section 结尾都挂 back-to-top |
 | **人性化** | 开头用读者视角切入，保留项目个性，避免学究腔 | "This project is a comprehensive, enterprise-grade solution that leverages cutting-edge..." |
 | **多样化** | 从可选章节池里按项目实际需要挑，不要 10 份 README 长一个样 | 任何项目都硬塞 Demo / Architecture / Roadmap / FAQ |
 | **规范** | GFM 兼容、代码块带语言、表格列对齐、shields.io badge 用真实值 | `npm i` 不写语言；徽章写 `YOUR-USERNAME` 占位没替换 |
@@ -240,11 +240,18 @@ options:
 - **多样化**：可选 section 按项目实际挑，**避免 10 份 README 长一个样**
 - **规范**：GFM 兼容、代码块带语言、表格列对齐、所有链接有效
 
-**每个 section 结尾加**（除非是文档末尾）：
+**back-to-top 链接只加在"长"大节末尾，不是每节都加**（逐节都挂是视觉噪音，实测反馈）：
 
 ```markdown
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 ```
+
+- **加**：`##` 大节一屏放不下时——正文 ≥ 15 行、含多个 `###` 子节、或有大表格 / 长代码块，读者才真需要一键回顶部
+- **不加**：
+  - License / Contact / Authors / Contributing / Acknowledgments 这类收尾小节——离文档底部只有几行
+  - 连续的短节——宁可整组都没有，也不要每节一个
+  - 文档末尾（最后一节 / 底部引用区之后）——不要再补一个居中的 back-to-top
+- 拿不准就不加：少一个没人察觉，多一个就是噪音
 
 **Alerts 规范**（GFM）：
 
@@ -319,6 +326,7 @@ options:
 - [ ] 代码块都有语言标识（` ```bash ` / ` ```ts ` / ` ```python ` 等）
 - [ ] 表格列对齐、列数一致
 - [ ] 文档 > 200 行时，TOC 存在
+- [ ] back-to-top 没有逐节堆：只在大节末尾，License / Authors / Contact 等收尾小节和文档末尾都没有
 - [ ] 没有任何空 section（"## License" 后面必须有内容）
 - [ ] 中英混排时两边都通顺
 - [ ] 有 banner 时：文件真实存在于 `assets/`、README 引用路径正确、`<title>` 不是空话
@@ -344,7 +352,7 @@ options:
 
 - 写入 `<project-root>/README.md`（主 README，第一个语言）+ `<project-root>/README.<bcp47>.md` ×（N-1）
 - 文档长度 200–600 行/语言（视项目复杂度）
-- 包含 Best-README-Template 风格：徽章、TOC、back-to-top、底部引用区
+- 包含 Best-README-Template 风格：徽章、TOC、back-to-top（只在大节末尾，不逐节堆）、底部引用区
 - banner：默认生成 `assets/banner.svg` 并在主 README 顶部引用；跳过时在报告里说明原因（无名字来源 / 用户拒绝 / 已有现成图）
 - 每个 section 都有实际内容；不允许出现"待补充"、"TBD"、占位用户名
 - 遵循 GFM 规范（表格、代码块、Alerts、折叠、diff 都能正确渲染）

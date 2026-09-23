@@ -56,6 +56,7 @@
 **关键点**：
 
 - `<a id="readme-top"></a>` 必须放在最顶，给 back-to-top 链接用
+- back-to-top 只加在长大节末尾（判据见 SKILL.md Step 5）；License / Contact / Acknowledgments 等收尾小节和文档末尾一律不加
 - 徽章数量控制在 4–7 个，多了视觉杂乱
 - 居中区域用 HTML `<div align="center">`，GFM 兼容
 - TOC 用 `<details>` 折叠，长 README 不挤压视觉
@@ -80,6 +81,7 @@ Here's why this exists:
 * You shouldn't have to read the source to know how it works
 * It should just work
 
+<!-- back-to-top：只加在长大节末尾；下面的 Contributing / License / Contact / Acknowledgments 都不加 -->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With

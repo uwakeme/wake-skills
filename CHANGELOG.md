@@ -15,10 +15,10 @@
 ### Changed
 
 - **readme-craft 0.2.0**：新增 git tag 感知——仓库没有任何 tag 时询问是否创建（绝不自动推送），version 徽章优先用 GitHub 动态端点避免过期；写 README 时默认依据项目自动生成一张顶部 SVG banner（[677d628]）
+- **readme-craft 0.2.1**：生成的 README 不再每个 section 都挂 back-to-top——只在一屏放不下的长大节末尾保留，License / Authors / Contact 等收尾小节与文档末尾一律不加（[5212ddd]）
 
 ### Fixed
 
-- readme-craft 生成的 README 不再每个 section 都挂 back-to-top：只在一屏放不下的长大节末尾保留，License / Authors / Contact 等收尾小节与文档末尾一律不加（readme-craft 0.2.1）（[5212ddd]）
 - 按安全评估结果修复 readme-craft 与 article-valuator 两个技能的安全漏洞、逻辑矛盾与文档渲染损坏问题（[0e971a4]）
 
 ### Internal Changes

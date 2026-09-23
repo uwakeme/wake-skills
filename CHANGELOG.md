@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- 新增 **homepage-craft** 技能：扫描仓库产出单文件 HTML 主页（`docs/index.html`，可直接发布到 GitHub Pages），自动编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign），生成后可经用户确认自动部署（commit + push + gh 开启 Pages）（[bb111e6]）
+- homepage-craft 首次 dogfood：为本仓库生成主页 `docs/index.html`（墨蓝夜编辑器风、frontmatter 卡签名元素，桌面 + 手机双宽度自检通过）（[7c9b33e]）
+
 ## [0.2.0] - 2026-09-23
 
 ### Added
@@ -40,3 +45,5 @@
 [0b993ce]: https://github.com/uwakeme/wake-skills/commit/0b993ce
 [b788a93]: https://github.com/uwakeme/wake-skills/commit/b788a93
 [5212ddd]: https://github.com/uwakeme/wake-skills/commit/5212ddd
+[bb111e6]: https://github.com/uwakeme/wake-skills/commit/bb111e6
+[7c9b33e]: https://github.com/uwakeme/wake-skills/commit/7c9b33e

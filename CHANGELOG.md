@@ -9,6 +9,10 @@
 - 新增 **homepage-craft** 技能：扫描仓库产出单文件 HTML 主页（`docs/index.html`，可直接发布到 GitHub Pages），自动编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign），生成后可经用户确认自动部署（commit + push + gh 开启 Pages）（[bb111e6]）
 - homepage-craft 首次 dogfood：为本仓库生成主页 `docs/index.html`（墨蓝夜编辑器风、frontmatter 卡签名元素，桌面 + 手机双宽度自检通过）（[7c9b33e]）
 
+### Changed
+
+- **homepage-craft 0.2.0**：部署流程改为两段询问（部署意向 + 发布策略），发布策略由用户决定——随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作、不碰工作区）；"Pages 已开启且源不同"安全阀覆盖 A/B 互切（[770efec]）
+
 ## [0.2.0] - 2026-09-23
 
 ### Added
@@ -47,3 +51,4 @@
 [5212ddd]: https://github.com/uwakeme/wake-skills/commit/5212ddd
 [bb111e6]: https://github.com/uwakeme/wake-skills/commit/bb111e6
 [7c9b33e]: https://github.com/uwakeme/wake-skills/commit/7c9b33e
+[770efec]: https://github.com/uwakeme/wake-skills/commit/770efec

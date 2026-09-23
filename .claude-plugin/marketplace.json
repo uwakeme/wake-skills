@@ -38,7 +38,7 @@
         "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
         "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。"
       },
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "uwakeme"
       },

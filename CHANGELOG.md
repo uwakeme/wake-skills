@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-23
+
 ### Added
 
 - 新增 **changelog-craft** 技能：按 Keep a Changelog 1.1.0 规范维护 CHANGELOG.md，提交时逐笔判定改动是否值得写一条，发版时把 Unreleased 归段成新版本（[a250c5b]）
@@ -25,7 +27,8 @@
 
 - changelog-craft 的设计文档、评审修订与实施计划入库（[15a072a]、[0b993ce]、[b788a93]）
 
-[Unreleased]: https://github.com/uwakeme/wake-skills/compare/8fcc7d3...HEAD
+[Unreleased]: https://github.com/uwakeme/wake-skills/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/uwakeme/wake-skills/releases/tag/v0.2.0
 [a250c5b]: https://github.com/uwakeme/wake-skills/commit/a250c5b
 [76a5c50]: https://github.com/uwakeme/wake-skills/commit/76a5c50
 [aa4ec87]: https://github.com/uwakeme/wake-skills/commit/aa4ec87

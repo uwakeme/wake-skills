@@ -3,10 +3,16 @@ import { join } from 'node:path';
 
 const TRIGGER_HEAD = /(^|\n)\s*触发(?:词|场景)?[：:]\s*/;
 const QUOTED = /[""]([^""]{1,40})[""]|「([^」]{1,40})」/g;
-// 触发词条数上限：规范写法最多 7 条；散文式段落会明显超过该数量，判为不可靠并交回落处理。
-const MAX_TRIGGERS = 7;
+// 触发列表在第一个全角句号处结束：句号之前是列举的触发词，句号之后是散文说明。
+const SENTENCE_END = '。';
 
-/** 解析 --- 包裹的 frontmatter，块标量按缩进折叠为单段字符串。 */
+/**
+ * 解析 --- 包裹的 frontmatter。
+ * 块标量按缩进折叠为一个字符串，**保留换行**（刻意不压成单段）：
+ * 触发词与反触发都按行首锚定匹配，压平会让 `触发词：` 失去行首位置。
+ * 块标量内部的空行是合法 YAML，跳过而不终止。
+ * 返回的 description 因此是多行文本，调用方需要单行时自行折叠。
+ */
 export function parseFrontmatter(text) {
   const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n*/.exec(text);
   if (!m) return { fields: {}, body: text };
@@ -36,25 +42,31 @@ export function parseFrontmatter(text) {
   return { fields, body: text.slice(m[0].length) };
 }
 
-/** 取触发段（触发行到反触发行之间）的文字；取不到返回空串。 */
+/**
+ * 取触发段文字：触发行 → 反触发行（或第一个全角句号）为止，取不到返回空串。
+ * 以句号作结构边界而非用条数上限：规范写法可以有很多条，散文才会在句号后继续
+ * 夹带说明性引文，因此「句号前」既能保住长列表，又能切掉散文。
+ */
 function triggerSegment(description) {
   const start = TRIGGER_HEAD.exec(description);
   if (!start) return '';
   const rest = description.slice(start.index + start[0].length);
   const stop = rest.search(/不要在以下(?:情况|场景)(?:使用|)/);
-  return stop === -1 ? rest : rest.slice(0, stop);
+  const seg = stop === -1 ? rest : rest.slice(0, stop);
+  const end = seg.indexOf(SENTENCE_END);
+  return end === -1 ? seg : seg.slice(0, end);
 }
 
-/** 从 SKILL.md description 抓触发词；数量超过上限视为散文、判为不可靠。 */
+/** 从 SKILL.md description 抓触发词；引号内容跨行时去掉换行，保证单条可单行渲染。 */
 export function extractTriggersFromSkillMd(description) {
   const seg = triggerSegment(description);
   if (!seg) return [];
   const out = [];
   for (const m of seg.matchAll(QUOTED)) {
-    const v = (m[1] ?? m[2] ?? '').trim();
+    const v = (m[1] ?? m[2] ?? '').replace(/\r?\n\s*/g, '').trim();
     if (v) out.push(v);
   }
-  return out.length > MAX_TRIGGERS ? [] : out;
+  return out;
 }
 
 /** 从 SKILL.md description 抓「不要在以下情况使用」条目，去掉箭头后的解释。 */

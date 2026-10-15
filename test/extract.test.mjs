@@ -37,11 +37,50 @@ test('extractTriggersFromSkillMd: 弯引号「」写法（readme-banner）', () 
   assert.ok(t.includes('hero 图'));
 });
 
-test('extractTriggersFromSkillMd: 散文式（article-valuator）触发数量异常时返回空数组', () => {
+test('extractTriggersFromSkillMd: 散文式（article-valuator）只取第一个句号前的触发词', () => {
   const { fields } = parseFrontmatter(skillMd('article-valuator'));
   const t = extractTriggersFromSkillMd(fields.description);
-  // 散文段落里引号内容会超过 6 个，解析器必须判为不可靠并交回落处理
-  assert.ok(t.length === 0 || t.length <= 6);
+  // 句号之后的 "评估"、"要不要看 / 学 / 收藏这篇文章" 属散文说明，不是触发词。
+  // 本例同时覆盖引号内跨行去换行：源文件里第 3、6 条各断了一次行。
+  assert.deepEqual(t, [
+    '帮我看看这篇文章值不值得读/学',
+    '评估一下这个链接',
+    '这个文章有价值吗',
+    '这篇文章值得花时间吗',
+    '帮我分析一下这篇的含金量',
+    '看看要不要收藏这篇',
+  ]);
+});
+
+test('extractTriggersFromSkillMd: 规范列表超过 7 条（changelog-craft）应全部保留', () => {
+  const { fields } = parseFrontmatter(skillMd('changelog-craft'));
+  const t = extractTriggersFromSkillMd(fields.description);
+  assert.deepEqual(t, [
+    '生成 CHANGELOG',
+    '写 changelog',
+    '更新更新日志',
+    '这个版本改了啥',
+    '整理 release notes',
+    '提交',
+    'commit',
+    '帮我提交这些改动',
+  ]);
+});
+
+test('extractTriggersFromSkillMd: 规范列表超过 7 条（homepage-craft）应全部保留', () => {
+  const { fields } = parseFrontmatter(skillMd('homepage-craft'));
+  const t = extractTriggersFromSkillMd(fields.description);
+  assert.deepEqual(t, [
+    '给项目生成主页',
+    '做一个 landing page',
+    '生成项目官网',
+    'GitHub Pages 首页',
+    'project homepage',
+    '把 README 变成网页',
+    '开源项目展示页',
+    '给我的库做个介绍页',
+    '把主页部署上线',
+  ]);
 });
 
 test('extractAntiTriggers: 抽取「不要在以下情况使用」条目（readme-craft）', () => {

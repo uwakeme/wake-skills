@@ -1,0 +1,28 @@
+#!/bin/sh
+# pre-commit —— 改到 skill 数据源时自动同步主页 / README / skills.json
+#
+# 只在「本次暂存的内容可能影响 skill 数据」时才跑 build，
+# 改 README 散文、改主页样式这类提交不受影响。
+#
+# 开启方式（一次性，新克隆机器要重跑）：
+#   git config core.hooksPath .githooks
+
+set -e
+
+staged=$(git diff --cached --name-only)
+
+need_build() {
+  echo "$staged" | grep -q -E '(^|/)SKILL\.md$|^\.claude-plugin/marketplace\.json$|^package\.json$|^scripts/'
+}
+
+# 脚本自身或测试变更时，也重跑一次确保没有残留漂移
+if need_build; then
+  if ! node scripts/build-site-data.mjs; then
+    echo "pre-commit: build 失败，提交已阻止。修好后再提交。" >&2
+    exit 1
+  fi
+  # 把生成物一并纳入本次提交
+  git add docs/skills.json docs/index.html README.md
+fi
+
+exit 0

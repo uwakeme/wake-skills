@@ -74,6 +74,8 @@ git commit -m "feat: 新增 <skill-name> 技能：<一句话>"
 
 pre-commit hook 检测到 `marketplace.json` 或 `SKILL.md` 进了暂存区，会自动跑 build，并把重新生成的 `docs/skills.json`、`docs/index.html` meta、`README.md` 元信息行一并纳入同一次提交。**你不需要手动 build 完再提交**。
 
+新 skill 的 README 段落也会自动补成骨架（标题行 + 触发词行），**描述段落留空待人工补**——那是人工内容，脚本不替你编。
+
 hook 不会介入的情况：只改 README 散文、改主页样式等与 skill 数据无关的提交——这是有意的，别改 hook。
 
 ### 5. 补 CHANGELOG

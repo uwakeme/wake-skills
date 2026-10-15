@@ -423,3 +423,62 @@ test('applyTargets: 内联数据真实变化要能被抓到', () => {
   const r = applyTargets([[file, a]], { check: true });
   assert.deepEqual(r.drift, [file], '内容真变了必须报漂移');
 });
+// ---- 新增 skill 自动进 README ----
+
+test('injectReadme: marketplace 有而 README 没有的 skill 会自动补骨架段落', () => {
+  const readme = [
+    '## 当前 skill',
+    '',
+    '### [old-one](./old-one) `v1.0.0`',
+    '',
+    '旧的手写描述。',
+    '',
+    '触发词：`旧触发`。',
+    '',
+    '## 安装',
+    '',
+    '装法说明。',
+  ].join('\n');
+  const records = [
+    { name: 'old-one', version: '1.0.0', triggers: ['旧触发'] },
+    { name: 'new-one', version: '0.1.0', triggers: ['新触发甲', '新触发乙'] },
+  ];
+  const out = injectReadme(readme, records);
+  assert.ok(out.includes('### [new-one](./new-one) `v0.1.0`'), '新 skill 应有标题行与版本号');
+  assert.ok(out.includes('触发词：`新触发甲`、`新触发乙`。'), '新 skill 应有触发词行');
+  assert.ok(out.includes('旧的手写描述。'), '原有手写描述必须原样保留');
+  assert.ok(out.includes('装法说明。'), '后续章节不能被动到');
+  const idxOld = out.indexOf('old-one');
+  const idxNew = out.indexOf('new-one');
+  const idxInstall = out.indexOf('## 安装');
+  assert.ok(idxOld < idxNew && idxNew < idxInstall, '新段落应插在本段末尾、安装章节之前');
+});
+
+test('injectReadme: 补出来的段落连跑两次不重复追加', () => {
+  const readme = '## 当前 skill\n\n### [a](./a) `v1.0.0`\n\n描述。\n\n触发词：`x`。\n\n## 安装\n';
+  const records = [
+    { name: 'a', version: '1.0.0', triggers: ['x'] },
+    { name: 'b', version: '0.1.0', triggers: ['y'] },
+  ];
+  const once = injectReadme(readme, records);
+  const twice = injectReadme(once, records);
+  assert.equal(twice, once, '第二次不应再追加一遍');
+  assert.equal((twice.match(/### \[b\]/g) || []).length, 1);
+});
+
+test('injectReadme: 触发词为空的新 skill 给出待补占位而不是空白段', () => {
+  const readme = '## 当前 skill\n\n### [a](./a) `v1.0.0`\n\n描述。\n\n触发词：`x`。\n\n## 安装\n';
+  const records = [
+    { name: 'a', version: '1.0.0', triggers: ['x'] },
+    { name: 'c', version: '0.1.0', triggers: [] },
+  ];
+  const out = injectReadme(readme, records);
+  assert.ok(out.includes('### [c](./c) `v0.1.0`'));
+  assert.ok(out.includes('待补'), '无触发词时应标注待补');
+});
+
+test('injectReadme: README 没有「当前 skill」段时不硬塞', () => {
+  const readme = '# 标题\n\n正文。\n';
+  const records = [{ name: 'x', version: '1.0.0', triggers: ['t'] }];
+  assert.equal(injectReadme(readme, records), readme, '找不到锚点段应原样返回');
+});

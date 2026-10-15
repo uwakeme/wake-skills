@@ -174,16 +174,25 @@ export function injectInlineData(html, payload) {
   };
 }
 
-/** 只改 README 各 skill 段落的标题行（名称+版本）与「触发词：」行，其余一字不动。 */
+/**
+ * README 的「## 当前 skill」段与 marketplace 保持一致：
+ * 已有段落只更新标题行的版本号与「触发词：」行；
+ * marketplace 里有、README 里没有的 skill 自动补一个骨架段落（描述留空待人工写）。
+ */
 export function injectReadme(readme, records) {
   let out = readme;
+  const eol = /\r\n/.test(readme) ? '\r\n' : '\n';
+  const present = new Set();
+
   for (const r of records) {
     const key = escapeRegExp(r.name);
     // 标题行必须行内锚定：\s* 会跨过换行把描述段落的第一个词吃掉，
     // 那等于改写手写段落。只吞标题行自己的尾巴（旧版本号），并用函数式
     // 替换避免版本号里的 $ 被当成替换模式。
     const head = new RegExp(`(###\\s*\\[${key}\\]\\([^)]*\\))[^\\S\\n]*[^\\n]*`);
-    if (head.test(out)) {
+    const hasHead = head.test(out);
+    if (hasHead) {
+      present.add(r.name);
       out = out.replace(head, (_m, g1) => `${g1} \`v${r.version}\``);
     }
     const segRe = new RegExp(
@@ -200,6 +209,30 @@ export function injectReadme(readme, records) {
       ? seg[0].replace(/\n触发词：[^\n]*/, () => `\n${line}`)
       : seg[0].replace(/\n触发词：[^\n]*/, '');
     out = out.replace(seg[0], () => body);
+  }
+
+  // 补齐缺失的段落：新 skill 也该立刻出现在 README 里，而不是等人工想起来加。
+  // 只生成骨架（标题行 + 触发词行），描述段落留空并标注待补——那是人工内容，
+  // 脚本不替你编。顺序跟随 marketplace 的登记顺序，插在该段末尾。
+  const missing = records.filter((r) => !present.has(r.name));
+  if (missing.length) {
+    const section = /(^##\s+当前\s*skill\s*$)([\s\S]*?)(?=^##\s)/m.exec(out);
+    if (section) {
+      const triggerLine = (r) => (r.triggers.length
+        ? `触发词：${r.triggers.map((t) => `\`${t}\``).join('、')}。`
+        : '');
+      const blocks = missing
+        .map((r) => {
+          const t = triggerLine(r);
+          const lines = [`### [${r.name}](./${r.name}) \`v${r.version}\``];
+          if (t) lines.push('', t);
+          else lines.push('', '> 待补：描述段落（人工内容）。');
+          return lines.join(eol);
+        })
+        .join(eol + eol);
+      const rebuilt = `${section[1]}${section[2].replace(/\s*$/, '')}${eol}${eol}${blocks}${eol}${eol}`;
+      out = out.replace(section[0], () => rebuilt);
+    }
   }
   return out;
 }

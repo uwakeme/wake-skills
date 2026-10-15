@@ -11,6 +11,85 @@ Wake-Skills 仓库的 agent 操作约定。本文件是该仓库的**项目规�
 - 提交前确认工作区没有无关改动；**只 `git add` 本次涉及的文件，绝不 `git add -A` / `git add .`**。
 - 不 `git push --force`。被拒（落后远端 / 分支保护）时停下报告，由仓库所有者决定怎么处理。
 
+## 新增一个 skill 的完整流程
+
+**顺序不能颠倒。** 核心记法：**先登记 marketplace，再 `git add`，最后 `git commit`——提交时 hook 会替你把主页和 README 同步好。**
+
+### 1. 建目录与主体
+
+```
+<skill-name>/
+├── SKILL.md           # 必备
+├── references/        # 可选
+└── .claude-plugin/
+    └── plugin.json    # ZCode 插件清单
+```
+
+起骨架：`mavis skill create <name> -a <agent> --file ./SKILL.md`，或手写。
+校验：`node <skill-creator>/scripts/lint-skill.js <skill-name>/`
+
+SKILL.md 的 frontmatter 要写 `name` / `description`（触发词段与反触发段按下方格式约定写），可选 `risk` / `source`。
+
+### 2. 登记到 marketplace（必做，否则主页不显示）
+
+在 `.claude-plugin/marketplace.json` 的 `plugins[]` 里加一项，字段齐全：
+
+```json
+{
+  "name": "<skill-name>",
+  "source": "./<skill-name>",
+  "description": "English one-liner.",
+  "description_i18n": { "zh-CN": "中文一句话说明。" },
+  "version": "0.1.0",
+  "author": { "name": "uwakeme" },
+  "category": "documentation | design | productivity",
+  "keywords": ["关键词1", "关键词2"]
+}
+```
+
+漏了这一步不会报错，但 `npm run build` 会打印「孤儿 skill」告警，主页上永远看不到它。
+
+### 3. 验证数据装配正确
+
+```powershell
+npm run build    # 重新生成 docs/skills.json + 注入 index.html + 更新 README 元信息行
+npm run check    # 应当干净退出（0）
+npm test         # 单元测试全绿
+```
+
+看 build 的输出，确认新 skill 那行的 `触发来源=` 不是 `none`：
+
+```
+- <skill-name> v0.1.0 [<category>] 触发来源=skill-md 触发词=N
+```
+
+`触发来源=readme` 说明 SKILL.md 的触发词没解析出来（回落到了 README）；`none` 说明两处都没解析到，**主页上这个 skill 不显示触发词行**——回去核对触发词格式。
+
+### 4. 提交（hook 会自动同步生成物）
+
+```powershell
+git add .claude-plugin/marketplace.json <skill-name>/
+git commit -m "feat: 新增 <skill-name> 技能：<一句话>"
+```
+
+pre-commit hook 检测到 `marketplace.json` 或 `SKILL.md` 进了暂存区，会自动跑 build，并把重新生成的 `docs/skills.json`、`docs/index.html` meta、`README.md` 元信息行一并纳入同一次提交。**你不需要手动 build 完再提交**。
+
+hook 不会介入的情况：只改 README 散文、改主页样式等与 skill 数据无关的提交——这是有意的，别改 hook。
+
+### 5. 补 CHANGELOG
+
+在 `CHANGELOG.md` 的 `## [Unreleased]` 下按 Keep a Changelog 归段：新增 skill 归 **Added**，行为变更归 **Changed**，修 bug 归 **Fixed**。
+
+### 6. 一次性设置（每台新机器）
+
+```powershell
+git config core.hooksPath .githooks
+```
+
+不设这条，第 4 步的自动同步不会发生。
+
+---
+
 ## 提交与改动后置
 
 改完 skill 后跑一遍数据生成，让主页与 README 跟上：
@@ -22,6 +101,8 @@ npm test        # 单元测试，必须全绿
 ```
 
 Windows 环境注意：`node --test test/` 在本机 Node 上不可用，一律用 `npm test`（内部走 `node --test "test/*.test.mjs"`）。
+
+`npm run check` 会比对 `docs/skills.json`、`docs/index.html`、`README.md` 三个文件（比对时排除 `generatedAt` 与 CRLF/LF 差异）。
 
 ## 仓库结构约定
 
@@ -40,8 +121,9 @@ docs/skills.json                  # build 产物，勿手改
 ## 数据单一来源
 
 - **`.claude-plugin/marketplace.json` 是 skill 列表的唯一权威**：name、version、category、keywords、中英描述都只从它读。新增 skill 只需在这里登记 + 建目录，**不要手工编辑 `docs/index.html` 的列表区或 README 的 skill 段落**。
+- `docs/skills.json` 是 **build 产物，永远不要手改**——改了下次 `npm run build` 就被覆盖，`npm run check` 会报漂移。要改数据就去改 marketplace.json。
 - 各 `<skill>/SKILL.md` 的 frontmatter 是 skill 自身行为的权威：`description` 里的「触发：」段是触发词来源，「不要在以下情况使用：」段是反触发来源。
-- 描述里**不要出现 `$`**：`scripts/build-site-data.mjs` 的注入逻辑虽然已改成函数式替换（不受 `$` 影响），但锚点区保持无 `$` 更安全。
+- 描述里**不要出现 `$`**：`scripts/build-site-data.mjs` 的注入逻辑已改成函数式替换（不受 `$` 影响），但锚点区保持无 `$` 更安全。
 
 ## 写触发词时的格式约定
 
@@ -53,6 +135,22 @@ docs/skills.json                  # build 产物，勿手改
 - 反触发段用 `不要在以下情况使用：` / `不要在以下场景使用：` 开头。
 
 写法不规范时不会报错，但可能解析不到触发词——此时主页上该 skill 不显示触发词行。
+
+## 常见告警对照
+
+`npm run build` / `npm run check` 打印的告警与含义：
+
+| 告警 | 原因与处理 |
+| --- | --- |
+| `孤儿 skill：<name>/ 有 SKILL.md 但未登记到 marketplace.json` | 建了目录忘了登记，主页不会显示它 → 去 marketplace.json 补一项 |
+| `marketplace 登记了 "<name>"，但目录 <name>/ 不存在` | marketplace 里有登记但目录没建或名字拼错 → 对齐两边 |
+| `"<name>" 缺字段 version/category/description_i18n` | marketplace 条目不完整 → 补齐字段，否则主页显示空值 |
+| `"<name>" 没有 SKILL.md` | 目录建了但主体文件没写 → 建 SKILL.md |
+| `index.html 缺少 auto:meta 锚点，meta 数字未更新` | `docs/index.html` 的锚点注释被删了 → 恢复 `<!-- auto:meta:count:begin/end -->` |
+| `触发来源=none` | SKILL.md 与 README 都解析不到触发词 → 核对触发词格式（见上节） |
+| `npm run check` 退出码 1 | 有漂移，跑 `npm run build` 同步 |
+
+`origin/HEAD` 指向非 `main` 的克隆里，`skills.json` 可能持续报漂移——那是分支名导致的，不是内容漂移，别去改脚本迁就它。
 
 ## README 与 CHANGELOG
 

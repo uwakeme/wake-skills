@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- auto:meta:count:begin -->
 <title>Wake-Skills — 文档、设计与效率类 AI 代理技能合集</title>
 <meta name="description" content="Wake 的个人技能合集：5 个技能覆盖 README 撰写、CHANGELOG 维护、项目主页生成、banner 设计与文章评估。同一个仓库，既是 Mavis skill 目录，也是 ZCode 插件市场，一条命令安装。">
 <meta property="og:title" content="Wake-Skills">
 <meta property="og:description" content="Wake 的个人技能合集：5 个技能覆盖 README、CHANGELOG、项目主页、banner 设计与文章评估，兼容 Mavis 与 ZCode 插件市场。">
+<!-- auto:meta:count:end -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://uwakeme.github.io/wake-skills/">
 <meta name="twitter:card" content="summary">
@@ -229,6 +231,33 @@ footer { border-top: 1px solid var(--border); }
   .install-grid { grid-template-columns: minmax(0, 1fr); }
   .mini-install code { max-width: 55vw; }
 }
+
+/* ---------- skill detail ---------- */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 0; }
+.filter-chip { cursor: pointer; user-select: none; }
+.filter-chip[aria-pressed="true"] { color: var(--bg); background: var(--teal); border-color: var(--teal); }
+.skill-item { border-top: 1px solid var(--border); }
+.skill-item:first-child { border-top: none; }
+.skill-toggle {
+  display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start;
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  padding: 22px 10px; color: inherit; font: inherit;
+}
+.skill-toggle:hover { background: var(--surface); }
+.skill-detail {
+  padding: 4px 10px 26px; min-width: 0;
+  display: grid; gap: 18px;
+}
+.skill-detail dt { color: var(--dim); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.skill-detail dd { margin: 0; }
+.ref-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.ref-list a { font-family: var(--font-mono); font-size: 0.78rem; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
+.skill-detail .cmd { margin-top: 8px; }
+#skill-load-error { padding: 24px 0; }
+/* 列表行现在是可展开的按钮：外层 .skill-toggle 已有 padding 与分隔线，
+   内层 .skill-row 若保留自己的 padding 和 border-bottom，
+   上下留白翻倍、相邻两条之间会出现 2px 粗线。这里把内层清零。 */
+.skill-item .skill-row { padding: 0; border-bottom: 0; }
 </style>
 </head>
 <body>
@@ -249,8 +278,8 @@ footer { border-top: 1px solid var(--border); }
   <div class="wrap">
     <div class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">MIT<span class="sep">·</span>5 skills<span class="sep">·</span>v0.2.0<span class="sep">·</span>Mavis + ZCode</p>
-        <h1>五个技能，一条命令，<br>装进你的 <span class="accent">AI 编码代理</span></h1>
+        <p class="eyebrow">MIT<span class="sep">·</span><span id="hero-skill-count">5 skills</span><span class="sep">·</span>v0.2.0<span class="sep">·</span>Mavis + ZCode</p>
+        <h1>一套技能，一条命令，<br>装进你的 <span class="accent">AI 编码代理</span></h1>
         <p class="sub">Wake 的个人技能合集：README 撰写、CHANGELOG 维护、项目主页生成、banner 设计、文章评估。同一个仓库，既是 Mavis skill 目录，也是 ZCode 插件市场。</p>
         <div class="cta-row">
           <a class="btn btn-primary" href="https://github.com/uwakeme/wake-skills" target="_blank" rel="noopener">GitHub 仓库</a>
@@ -261,14 +290,14 @@ footer { border-top: 1px solid var(--border); }
           <button type="button" class="copy-btn" data-copy="hero-cmd" aria-label="复制安装命令">复制</button>
         </div>
       </div>
-      <div class="fm-card" role="img" aria-label="仓库名片：name wake-skills，5 个技能，MIT 协议，支持 Mavis 与 ZCode 插件两种格式">
+      <div class="fm-card" role="img" aria-label="仓库名片：name wake-skills，技能清单见下方，MIT 协议，支持 Mavis 与 ZCode 插件两种格式">
         <div class="fm-line fm-delimiter">---</div>
         <div class="fm-line"><span class="fm-key">name:</span> <span class="fm-val">wake-skills</span></div>
         <div class="fm-line"><span class="fm-key">description:</span> <span class="fm-val">|</span></div>
         <div class="fm-line fm-block">Wake 的个人技能合集：</div>
         <div class="fm-line fm-block">文档、设计与效率类技能。</div>
         <div class="fm-line"><span class="fm-key">version:</span> <span class="fm-num">0.2.0</span></div>
-        <div class="fm-line"><span class="fm-key">skills:</span> <span class="fm-num">5</span></div>
+        <div class="fm-line"><span class="fm-key">skills:</span> <span class="fm-num" id="fm-skill-count">5</span></div>
         <div class="fm-line"><span class="fm-key">license:</span> <span class="fm-val">MIT</span></div>
         <div class="fm-line"><span class="fm-key">formats:</span> <span class="fm-val">[mavis, zcode-plugin]</span></div>
         <div class="fm-line fm-delimiter">---</div>
@@ -281,61 +310,18 @@ footer { border-top: 1px solid var(--border); }
       <div class="section-head reveal">
         <span class="rule"></span>
         <span class="label">Plugins · marketplace.json</span>
-        <h2 id="skills-h2">五个技能</h2>
+        <h2 id="skills-h2">全部技能</h2>
       </div>
       <div class="shelf reveal">
-        <a class="skill-row" href="https://github.com/uwakeme/wake-skills/tree/main/readme-craft" target="_blank" rel="noopener" aria-label="readme-craft，版本 0.2.1">
-          <div>
-            <span class="skill-name">readme-craft</span>
-            <div class="chips"><span class="chip ver">v0.2.1</span><span class="chip">documentation</span></div>
-          </div>
-          <div>
-            <p class="skill-desc">生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文，默认自动生成配套的顶部 SVG banner。支持多语言版本。</p>
-            <p class="skill-triggers">触发 <span class="t">`生成 README`</span> <span class="t">`写 README`</span> <span class="t">`补项目文档`</span></p>
-          </div>
-        </a>
-        <a class="skill-row" href="https://github.com/uwakeme/wake-skills/tree/main/article-valuator" target="_blank" rel="noopener" aria-label="article-valuator，版本 0.1.0">
-          <div>
-            <span class="skill-name">article-valuator</span>
-            <div class="chips"><span class="chip ver">v0.1.0</span><span class="chip">productivity</span></div>
-          </div>
-          <div>
-            <p class="skill-desc">评估一篇文章值不值得读：抓取链接正文（含微信公众号反爬兜底）或分析粘贴文本，按深度、可操作性、新颖度、相关性四维打分，给出 10 分制结论与证据。</p>
-            <p class="skill-triggers">触发 <span class="t">`这篇文章值不值得读`</span> <span class="t">`评估这个链接`</span></p>
-          </div>
-        </a>
-        <a class="skill-row" href="https://github.com/uwakeme/wake-skills/tree/main/readme-banner" target="_blank" rel="noopener" aria-label="readme-banner，版本 0.1.0">
-          <div>
-            <span class="skill-name">readme-banner</span>
-            <div class="chips"><span class="chip ver">v0.1.0</span><span class="chip">design</span></div>
-          </div>
-          <div>
-            <p class="skill-desc">为 GitHub README 生成顶部 banner：LLM 直接写干净 SVG（首选、可二次编辑），或图像 AI 出位图再矢量化；也支持两种都跑、各出 3 张候选对比。</p>
-            <p class="skill-triggers">触发 <span class="t">`生成 README banner`</span> <span class="t">`hero 图`</span></p>
-          </div>
-        </a>
-        <a class="skill-row" href="https://github.com/uwakeme/wake-skills/tree/main/changelog-craft" target="_blank" rel="noopener" aria-label="changelog-craft，版本 0.1.0">
-          <div>
-            <span class="skill-name">changelog-craft</span>
-            <div class="chips"><span class="chip ver">v0.1.0</span><span class="chip">documentation</span></div>
-          </div>
-          <div>
-            <p class="skill-desc">维护符合 Keep a Changelog 1.1.0 规范、说人话的 CHANGELOG.md：提交时逐笔判定改动是否值得写一条，发版时把 Unreleased 归段成新版本并对照 git log 补漏。</p>
-            <p class="skill-triggers">触发 <span class="t">`生成 CHANGELOG`</span> <span class="t">`这个版本改了啥`</span></p>
-          </div>
-        </a>
-        <a class="skill-row" href="https://github.com/uwakeme/wake-skills/tree/main/homepage-craft" target="_blank" rel="noopener" aria-label="homepage-craft，版本 0.1.0">
-          <div>
-            <span class="skill-name">homepage-craft</span>
-            <div class="chips"><span class="chip ver">v0.1.0</span><span class="chip">design</span><span class="chip">new</span></div>
-          </div>
-          <div>
-            <p class="skill-desc">为开源项目生成优美的单文件 HTML 主页，产出可直接发布到 GitHub Pages 的 docs/index.html；自动编排已安装的设计类 skill 提升视觉质量，生成后可经确认自动部署。本页就是它的产物。</p>
-            <p class="skill-triggers">触发 <span class="t">`给项目生成主页`</span> <span class="t">`做一个 landing page`</span></p>
-          </div>
-        </a>
+        <div class="filter-bar" id="skill-filters" role="group" aria-label="按分类筛选"></div>
+        <div id="skill-list"></div>
+        <div id="skill-load-error" hidden>
+          <p class="shelf-note">本页数据来自 <code>docs/skills.json</code>，浏览器禁止 <code>file://</code> 读取本地文件。
+            请在仓库根目录运行 <code>python -m http.server -d docs 8000</code>，再打开
+            <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>。</p>
+        </div>
       </div>
-      <p class="shelf-note reveal">每个技能一个独立插件，清单在其目录下的 <code>.claude-plugin/plugin.json</code>；版本号与 marketplace.json 实时一致。</p>
+      <p class="shelf-note reveal">每个技能一个独立插件，清单在其目录下的 <code>.claude-plugin/plugin.json</code>。列表、版本与触发词由 <code>scripts/build-site-data.mjs</code> 从各 SKILL.md 与 marketplace.json 生成。</p>
     </div>
   </section>
 
@@ -411,6 +397,211 @@ if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'Int
 } else {
   document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); });
 }
+
+/* ---- skill list render (data-driven) ---- */
+/* 列表、详情、分类筛选全部由 docs/skills.json 驱动（npm run build 生成）。
+   静态 HTML 里只留容器：没有这份数据的访客（GitHub Pages 之外的本地 file:// 打开）
+   会看到明确的本地服务提示，而不是一份悄悄过期的硬编码清单。
+   所有字段一律走 textContent：反触发词里可能有从引号切分截断的残句，innerHTML 会翻车。 */
+(function () {
+  var listEl = document.getElementById('skill-list');
+  var filterEl = document.getElementById('skill-filters');
+  var errEl = document.getElementById('skill-load-error');
+  var payload = null;
+  var active = 'all';
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  /* 首屏 eyebrow 与 fm-card 上的数量同样由数据决定；
+     HTML 里的字面值只是 JS 失效时的兜底。 */
+  function paintCount(count) {
+    var hero = document.getElementById('hero-skill-count');
+    var card = document.getElementById('fm-skill-count');
+    if (hero) hero.textContent = count + ' skills';
+    if (card) card.textContent = String(count);
+  }
+
+  function detailList(title, items, render) {
+    var wrap = el('div');
+    var dt = el('dt', null, title);
+    var dd = el('dd');
+    items.forEach(function (x) { dd.appendChild(render(x)); });
+    wrap.appendChild(dt); wrap.appendChild(dd);
+    return wrap;
+  }
+
+  function renderDetail(s, host) {
+    host.textContent = '';
+    var triggers = s.triggers || [];
+    var antiTriggers = s.antiTriggers || [];
+    var references = s.references || [];
+    var dl = el('dl');
+    dl.style.display = 'grid';
+    dl.style.gap = '16px';
+
+    var desc = el('div');
+    desc.appendChild(el('dt', null, '说明'));
+    var d = el('dd', null, s.description);
+    desc.appendChild(d);
+    dl.appendChild(desc);
+
+    if (triggers.length) {
+      dl.appendChild(detailList('触发词', triggers, function (t) {
+        return el('span', 't', '`' + t + '`');
+      }));
+    }
+    if (antiTriggers.length) {
+      dl.appendChild(detailList('不适用场景', antiTriggers, function (t) {
+        var li = el('span', null, '· ' + t);
+        li.style.display = 'block';
+        return li;
+      }));
+    }
+    if (references.length) {
+      dl.appendChild(detailList('references（' + references.length + '）', references, function (f) {
+        var a = el('a', null, f);
+        a.href = s.url + '/references/' + f;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        return a;
+      }));
+    }
+
+    var cmdWrap = el('div');
+    cmdWrap.appendChild(el('dt', null, '安装'));
+    var dd2 = el('dd');
+    var cmd = el('div', 'cmd');
+    var code = el('code', null, s.installCmd);
+    code.id = 'install-' + s.name;
+    var btn = el('button', 'copy-btn', '复制');
+    btn.type = 'button';
+    btn.setAttribute('data-copy', 'install-' + s.name);
+    btn.setAttribute('aria-label', '复制 ' + s.name + ' 安装命令');
+    cmd.appendChild(code); cmd.appendChild(btn);
+    dd2.appendChild(cmd);
+    var links = el('p', 'note');
+    var repo = el('a', null, 'GitHub 目录');
+    repo.href = s.url; repo.target = '_blank'; repo.rel = 'noopener';
+    var md = el('a', null, 'SKILL.md 原文');
+    md.href = s.url + '/SKILL.md'; md.target = '_blank'; md.rel = 'noopener';
+    md.style.marginLeft = '14px';
+    links.appendChild(repo); links.appendChild(md);
+    dd2.appendChild(links);
+    cmdWrap.appendChild(dd2);
+    dl.appendChild(cmdWrap);
+
+    host.appendChild(dl);
+    btn.addEventListener('click', function () {
+      var text = code.textContent.trim();
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove();
+      }
+      var old = btn.textContent;
+      btn.textContent = '已复制';
+      setTimeout(function () { btn.textContent = old; }, 1500);
+    });
+  }
+
+  function render() {
+    listEl.textContent = '';
+    payload.skills.filter(function (s) {
+      return active === 'all' || s.category === active;
+    }).forEach(function (s) {
+      var references = s.references || [];
+      var triggers = s.triggers || [];
+      var item = el('div', 'skill-item');
+      var head = el('div', 'skill-row');
+      var left = el('div');
+      left.appendChild(el('span', 'skill-name', s.name));
+      var chips = el('div', 'chips');
+      chips.appendChild(el('span', 'chip ver', 'v' + s.version));
+      chips.appendChild(el('span', 'chip', s.category));
+      if (references.length) chips.appendChild(el('span', 'chip', references.length + ' refs'));
+      left.appendChild(chips);
+      var right = el('div');
+      right.appendChild(el('p', 'skill-desc', s.description));
+      if (triggers.length) {
+        var tp = el('p', 'skill-triggers', '触发 ');
+        triggers.slice(0, 3).forEach(function (t) { tp.appendChild(el('span', 't', '`' + t + '` ')); });
+        right.appendChild(tp);
+      }
+      head.appendChild(left); head.appendChild(right);
+
+      var detail = el('div', 'skill-detail');
+      detail.hidden = true;
+      renderDetail(s, detail);
+
+      var toggle = el('button', 'skill-toggle');
+      toggle.type = 'button';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', s.name + '，版本 ' + s.version + '，展开详情');
+      toggle.appendChild(head);
+      toggle.addEventListener('click', function () {
+        var open = detail.hidden;
+        detail.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+
+      item.appendChild(toggle);
+      item.appendChild(detail);
+      listEl.appendChild(item);
+    });
+  }
+
+  function renderFilters() {
+    filterEl.textContent = '';
+    var cats = ['all'].concat(payload.categories || []);
+    cats.forEach(function (c) {
+      var b = el('span', 'chip filter-chip', c === 'all' ? '全部' : c);
+      b.setAttribute('role', 'button');
+      b.setAttribute('tabindex', '0');
+      b.setAttribute('aria-pressed', String(active === c));
+      // span 模拟按钮：既然给了 tabindex 就得能回车/空格激活，否则键盘用户只能看不能按。
+      function pick() { active = c; render(); renderFilters(); }
+      b.addEventListener('click', pick);
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); }
+      });
+      filterEl.appendChild(b);
+    });
+  }
+
+  window.__renderSkills = function (data) {
+    payload = data;
+    errEl.hidden = true;
+    listEl.hidden = false;
+    paintCount(data.count || data.skills.length);
+    renderFilters();
+    render();
+  };
+
+  if (location.protocol === 'file:') {
+    errEl.hidden = false;
+    listEl.hidden = true;
+    return;
+  }
+  fetch('skills.json')
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(window.__renderSkills)
+    .catch(function (err) {
+      errEl.hidden = false;
+      errEl.querySelector('p').textContent =
+        '技能数据加载失败（' + err.message + '）。请运行 npm run build 后重试。';
+      listEl.hidden = true;
+    });
+})();
 </script>
 
 </body>

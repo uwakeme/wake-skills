@@ -88,6 +88,26 @@ mavis skill install https://github.com/uwakeme/wake-skills -a <agent-name>
 2. 跑 `node <skill-creator>/scripts/lint-skill.js <dir>` 验证
 3. 写一两个真实项目验证效果，再考虑发布
 
+### 新增 skill 后不用手改主页
+
+主页和上面这份 skill 列表都从 `.claude-plugin/marketplace.json` 自动生成。登记完 marketplace、跑一条命令即可：
+
+```powershell
+npm run build   # 重新生成 docs/skills.json + 主页 meta + README 的版本号与触发词行
+```
+
+跑完主页会多出一个 skill 卡片，点开能看到它的描述、触发词、references 清单和可直接复制的安装命令。`npm run check` 是对应的漂移检测，改完 skill 忘了 build 会退出码 1 提醒你。`npm test` 跑单元测试。
+
+本地预览主页需要起 HTTP 服务（`file://` 下浏览器不让读本地 json，页面会直接提示）：
+
+```powershell
+python -m http.server -d docs 8000   # 打开 http://127.0.0.1:8000/
+```
+
+### Git 工作流
+
+本仓库单人维护，**直接在 `main` 分支上改**，不开特性分支。agent 的完整操作约定见 [AGENTS.md](./AGENTS.md)。
+
 ## License
 
 [MIT](./LICENSE) — 自由使用、修改、分发、商用，保留版权声明即可。

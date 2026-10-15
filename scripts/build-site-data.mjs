@@ -129,6 +129,34 @@ export function injectMeta(html, count) {
   return { html: html.replace(re, (_m, open, _inner, close) => `${open}${block}${close}`), ok: true };
 }
 
+/**
+ * 首屏两处技能数量：eyebrow 的 #hero-skill-count 与 fm-card 的 #fm-skill-count。
+ * 按 id 定点定位，不用行号也不用无锚点的大范围正则：
+ *  - 行号会随骨架里的任何一次插入整体漂移；
+ *  - 全文匹配「数字」会顺手动到 version、分类数这些手写文案。
+ * 这两处在 meta 锚点区间之外，injectMeta 覆盖不到，只能单独注入。
+ * 函数式替换：目标文本里出现 $& / $1 / $` 时，字符串替换会把整段匹配复制回来。
+ * 定位不到就原样返回并把 id 记进 missing，交给 main 打告警——不抛异常、不改文件。
+ */
+export function injectHeroCount(html, count) {
+  const slots = [
+    ['hero-skill-count', `${count} skills`],
+    ['fm-skill-count', String(count)],
+  ];
+  const missing = [];
+  let out = html;
+  for (const [id, text] of slots) {
+    // 标签名回引 \2 逼着开闭标签配对；内层 [^<]* 保证只改紧邻的文本，不跨元素。
+    const re = new RegExp(`(<([a-zA-Z][\\w-]*)[^>]*?\\sid="${id}"[^>]*>)([^<]*)(</\\2>)`);
+    if (!re.test(out)) {
+      missing.push(id);
+      continue;
+    }
+    out = out.replace(re, (_m, open, _tag, _inner, close) => `${open}${text}${close}`);
+  }
+  return { html: out, ok: missing.length === 0, missing };
+}
+
 /** 只改 README 各 skill 段落的标题行（名称+版本）与「触发词：」行，其余一字不动。 */
 export function injectReadme(readme, records) {
   let out = readme;
@@ -203,6 +231,8 @@ function main() {
   const html = readFileSync(HOMEPAGE, 'utf8');
   const injected = injectMeta(html, records.length);
   if (!injected.ok) warnings.push('index.html 缺少 <!-- auto:meta:count:begin/end --> 锚点，meta 数字未更新');
+  const counted = injectHeroCount(injected.html, records.length);
+  for (const id of counted.missing) warnings.push(`index.html 找不到 id="${id}"，首屏技能数量未更新`);
   // 告警在锚点检查之后再打印，否则这条会被漏掉（静默失败比没有校验更糟）。
   for (const w of warnings) console.warn(`  告警: ${w}`);
   const readmeSrc = readFileSync(README, 'utf8');
@@ -210,7 +240,7 @@ function main() {
   const readmeOut = withSameEol(readmeSrc, injectReadme(readmeSrc, records));
   const targets = [
     [SKILLS_JSON, jsonText],
-    [HOMEPAGE, injected.html],
+    [HOMEPAGE, counted.html],
     [README, readmeOut],
   ];
   const { drift, updated } = applyTargets(targets, { check });

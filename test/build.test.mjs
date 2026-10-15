@@ -9,6 +9,7 @@ import {
   buildSkillRecords,
   buildSkillsJson,
   injectMeta,
+  injectHeroCount,
   injectReadme,
   applyTargets,
   withSameEol,
@@ -18,6 +19,22 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = join(repoRoot, 'scripts', 'build-site-data.mjs');
 const README_PATH = join(repoRoot, 'README.md');
 const JSON_PATH = join(repoRoot, 'docs', 'skills.json');
+const HOMEPAGE_PATH = join(repoRoot, 'docs', 'index.html');
+
+/** 首屏两处计数的最小 fixture，结构照抄真实 index.html 的写法。 */
+function heroFixture(heroText = '5 skills', fmText = '5') {
+  return [
+    '  <div class="hero">',
+    `    <p class="eyebrow">MIT<span class="sep">·</span><span id="hero-skill-count">${heroText}</span><span class="sep">·</span>v0.2.0<span class="sep">·</span>Mavis + ZCode</p>`,
+    '    <div class="fm-card">',
+    '      <div class="fm-line fm-block">共 5 类：文档、设计、效率。</div>',
+    '      <div class="fm-line"><span class="fm-key">version:</span> <span class="fm-num">0.2.0</span></div>',
+    `      <div class="fm-line"><span class="fm-key">skills:</span> <span class="fm-num" id="fm-skill-count">${fmText}</span></div>`,
+    '    </div>',
+    '  </div>',
+    '',
+  ].join('\n');
+}
 
 /** 在系统临时目录里造一个 fixture 文件，返回其路径。 */
 function fixture(name, content) {
@@ -253,4 +270,103 @@ test('--check 端到端：当前仓库无漂移、退出码 0，且不写任何�
   assert.equal(readFileSync(README_PATH, 'utf8'), readmeBefore, 'check 不得改 README');
   assert.equal(readFileSync(JSON_PATH, 'utf8'), jsonBefore, 'check 不得改 skills.json');
 });
+
+// ---- fix round 2：首屏两处技能数量纳入脚本注入 ----
+
+test('injectHeroCount: hero-skill-count 与 fm-skill-count 的字面数字随 count 变化', () => {
+  const html = heroFixture();
+  const out = injectHeroCount(html, 6);
+  assert.equal(out.ok, true);
+  assert.deepEqual(out.missing, []);
+  assert.ok(out.html.includes('<span id="hero-skill-count">6 skills</span>'), 'eyebrow 的数字要跟着变');
+  assert.ok(out.html.includes('<span class="fm-num" id="fm-skill-count">6</span>'), 'fm-card 的数字要跟着变');
+});
+
+test('injectHeroCount: 除这两处外 HTML 一字不动（不靠脆弱行号/大范围正则）', () => {
+  const html = heroFixture();
+  const out = injectHeroCount(html, 6);
+  const expected = html
+    .replace('<span id="hero-skill-count">5 skills</span>', '<span id="hero-skill-count">6 skills</span>')
+    .replace('<span class="fm-num" id="fm-skill-count">5</span>', '<span class="fm-num" id="fm-skill-count">6</span>');
+  assert.equal(out.html, expected, '除了目标文本，其余字节必须完全一致');
+  assert.ok(out.html.includes('共 5 类：文档、设计、效率。'), '别处出现的数字不该被顺手动');
+  assert.ok(out.html.includes('<span class="fm-num">0.2.0</span>'), 'version 不该被动');
+  assert.equal(injectHeroCount(out.html, 6).html, out.html, '重复注入必须幂等');
+});
+
+test('injectHeroCount: 定位不到目标 id 时原样返回并 ok=false，不抛异常', () => {
+  const html = '<p>共 5 个技能</p>\n';
+  const out = injectHeroCount(html, 9);
+  assert.equal(out.ok, false);
+  assert.deepEqual(out.missing, ['hero-skill-count', 'fm-skill-count']);
+  assert.equal(out.html, html, '定位失败时不得改动 html 一个字节');
+  const partial = injectHeroCount(heroFixture(), 6);
+  assert.ok(partial.ok, '两个 id 都在时应为 ok');
+});
+
+test('injectHeroCount: 单个 id 缺失时只报缺失，另一个照常注入', () => {
+  const html = '<div><span class="fm-num" id="fm-skill-count">5</span></div>\n';
+  const out = injectHeroCount(html, 7);
+  assert.equal(out.ok, false);
+  assert.deepEqual(out.missing, ['hero-skill-count']);
+  assert.ok(out.html.includes('id="fm-skill-count">7</span>'), '命中的那处仍要更新');
+});
+
+test('injectHeroCount: 目标文本含 $& / $1 / $` / $\' 时不被当替换模式复制', () => {
+  // 字符串替换会把替换串里的 $& 解释成「整段匹配」，结果整行被复制回来。
+  // 这里让目标文本本身带 $ 模式，同时在旁边放一段带 $ 的无关手写文案。
+  // 注意 fixture 自身也必须用函数式替换来拼 $ 模式——字符串替换会把 $& / $` 当模式。
+  const html = heroFixture('$& $1 5 skills', "$` $' 5")
+    .replace('共 5 类：文档、设计、效率。', () => '共 5 类：$& 与 $` 是手写文案，别动。');
+  const out = injectHeroCount(html, 6);
+  assert.equal(out.ok, true);
+  assert.equal((out.html.match(/hero-skill-count/g) || []).length, 1, 'hero 标签不得被复制成两份');
+  assert.equal((out.html.match(/fm-skill-count/g) || []).length, 1, 'fm 标签不得被复制成两份');
+  assert.equal((out.html.match(/共 5 类/g) || []).length, 1, '无关文案不得被复制');
+  assert.ok(out.html.includes('共 5 类：$& 与 $` 是手写文案，别动。'), '无关文案里的 $ 模式要逐字保留');
+  assert.ok(out.html.includes('<span id="hero-skill-count">6 skills</span>'), '目标位重写为 count + skills');
+  assert.ok(out.html.includes('<span class="fm-num" id="fm-skill-count">6</span>'), '目标位重写为纯数字');
+  assert.ok(!out.html.includes("$& $1 5 skills"), '目标位旧文本（含 $ 模式）应整体换掉');
+  assert.equal(injectHeroCount(out.html, 6).html, out.html, '重复注入必须幂等');
+});
+
+test('injectHeroCount: 真实 index.html 按当前 count 注入后零改动（仓库无首屏漂移）', () => {
+  const { records } = buildSkillRecords(repoRoot);
+  const html = readFileSync(HOMEPAGE_PATH, 'utf8');
+  const out = injectHeroCount(html, records.length);
+  assert.deepEqual(out.missing, [], '真实主页必须同时含 #hero-skill-count 与 #fm-skill-count');
+  assert.equal(out.html, html, '提交进仓库的主页应已是最新数字，跑 build 不应再改它');
+  assert.ok(new RegExp(`<span id="hero-skill-count">${records.length} skills</span>`).test(html));
+  assert.ok(new RegExp(`<span class="fm-num" id="fm-skill-count">${records.length}</span>`).test(html));
+});
+
+test('injectHeroCount: 无关文案里含 $& 时也不会被当替换模式复制', () => {
+  // 字符串替换（而不是函数式替换）时，替换串里的 $& 会把整段匹配复制回来。
+  // 目标文本里的 $ 模式走的是「整体重写」路径，这里补一条旁边手写文案的场景。
+  const html = heroFixture().replace('Mavis + ZCode</p>', () => '$& $` $1 Mavis + ZCode</p>');
+  const out = injectHeroCount(html, 8);
+  assert.equal((out.html.match(/Mavis \+ ZCode/g) || []).length, 1, '整段匹配不得被复制回来');
+  assert.equal((out.html.match(/hero-skill-count/g) || []).length, 1);
+  assert.ok(out.html.includes('$& $` $1 Mavis + ZCode</p>'), '无关文案的 $ 模式逐字保留');
+  assert.ok(out.html.includes('<span id="hero-skill-count">8 skills</span>'));
+});
+
+test('漂移检测链路：手动改坏首屏数量后，check 会判为漂移', () => {
+  const html = readFileSync(HOMEPAGE_PATH, 'utf8');
+  const broken = html.replace(
+    /(<span class="fm-num" id="fm-skill-count">)(\d+)(<\/span>)/,
+    (_m, open, num, close) => `${open}${Number(num) + 1}${close}`,
+  );
+  assert.notEqual(broken, html, '先确认这份 fixture 真的被改坏了');
+  // 注入按传入 count 重写该处，坏文件与生成物不一致 → 会被判漂移
+  const expected = injectHeroCount(broken, 5);
+  assert.equal(expected.ok, true);
+  assert.ok(expected.html.includes(`id="fm-skill-count">5</span>`), '注入应按传入 count 重写该处');
+  assert.equal(expected.html, html, '重新注入后应与原始主页一致');
+  const file = fixture('index.html', broken);
+  const res = applyTargets([[file, expected.html]], { check: true });
+  assert.deepEqual(res.drift, [file], '首屏数量漂移必须被 --check 抓到');
+  assert.deepEqual(res.updated, []);
+});
+
 

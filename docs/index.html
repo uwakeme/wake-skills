@@ -418,7 +418,8 @@ if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'Int
   }
 
   /* 首屏 eyebrow 与 fm-card 上的数量同样由数据决定；
-     HTML 里的字面值只是 JS 失效时的兜底。 */
+     HTML 里的字面值由 scripts/build-site-data.mjs 按 id 注入，
+     这里只是 JS 生效时的运行时兜底（file:// 下 JS 不跑，靠的就是那个字面值）。 */
   function paintCount(count) {
     var hero = document.getElementById('hero-skill-count');
     var card = document.getElementById('fm-skill-count');

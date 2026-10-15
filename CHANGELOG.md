@@ -6,12 +6,24 @@
 
 ### Added
 
+- 新增 **AGENTS.md**：本仓库的 agent 操作约定（直接在 `main` 上开发、数据单一来源、触发词格式、LF 行尾）
+- 主页与 README 的 skill 列表改为**从 `.claude-plugin/marketplace.json` 自动生成**——新增或修改 skill 后不再手工编辑主页，列表、详情、分类筛选、meta 数字与 README 的版本号/触发词行全部由 `npm run build` 产出（`d94418b`、`e59e4f7`、`48308eb`、`22af90b`）
+- 新增 `npm run check` 漂移检测：改完 skill 忘了 build 会退出码 1，避免主页数字与真实数据脱节（`e8fe683`）
+- 新增 `.githooks/pre-commit`：暂存内容命中 `SKILL.md` / `marketplace.json` / `scripts/` 时自动同步生成物，build 失败则阻止提交（`b36d3f2`）
 - 新增 **homepage-craft** 技能：扫描仓库产出单文件 HTML 主页（`docs/index.html`，可直接发布到 GitHub Pages），自动编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign），生成后可经用户确认自动部署（commit + push + gh 开启 Pages）（[bb111e6]）
 - homepage-craft 首次 dogfood：为本仓库生成主页 `docs/index.html`（墨蓝夜编辑器风、frontmatter 卡签名元素，桌面 + 手机双宽度自检通过）（[7c9b33e]）
 
 ### Changed
 
+- 主页 skill 列表从 5 段硬编码 HTML 改为运行时渲染：点击卡片展开详情（完整描述、触发词、不适用场景、references 清单、可一键复制的安装命令），并支持按分类筛选（`e59e4f7`）
 - **homepage-craft 0.2.0**：部署流程改为两段询问（部署意向 + 发布策略），发布策略由用户决定——随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作、不碰工作区）；"Pages 已开启且源不同"安全阀覆盖 A/B 互切（[770efec]）
+
+### Fixed
+
+- 修复主页首屏 eyebrow 与仓库名片上的技能数量只由前端 JS 运行时改写、构建期不更新的问题：新增 `injectHeroCount` 定点注入，`--check` 现在能检测这两处的漂移（`22af90b`）
+- 修复 README 注入会把触发词里的 `$&` / `$1` 当替换模式、导致手写描述段落被复制篡改的隐患，注入改为函数式替换（`e8fe683`）
+- 修复触发词解析用「数量上限」判定散文，误伤 changelog-craft 与 homepage-craft 共 6 条真实触发词；改为按句号边界切分（`8559bd8`）
+- 新增 `.gitattributes` 统一 LF 行尾，修复 Windows `core.autocrlf=true` 下 `--check` 首次运行必报伪漂移（`e8fe683`）
 
 ## [0.2.0] - 2026-09-23
 

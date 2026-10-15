@@ -162,4 +162,4 @@ docs/skills.json                  # build 产物，勿手改
 
 - 仓库零运行时依赖：不引入 npm 包；主页是单文件 HTML，CSS/JS 内联，不用框架、不用构建步骤、不引 CDN。
 - 仓库统一 LF 行尾（见 `.gitattributes` 的 `* text=auto eol=lf`）。
-- 主页需通过本地 HTTP 服务预览（`python -m http.server -d docs 8000`）；`file://` 协议下浏览器禁止读取本地 `skills.json`，页面会显示提示而不是列表，属预期行为。
+- **主页双击即可打开**：`npm run build` 会把技能数据内联进 `docs/index.html` 的 `<script type="application/json" id="skill-data">`，因此 `file://` 协议下也能看到完整列表。`docs/skills.json` 仍然生成，作为前端 fetch 的降级路径和给其他工具用的数据源。

@@ -98,11 +98,7 @@ npm run build   # 重新生成 docs/skills.json + 主页 meta + README 的版本
 
 跑完主页会多出一个 skill 卡片，点开能看到它的描述、触发词、references 清单和可直接复制的安装命令。`npm run check` 是对应的漂移检测，改完 skill 忘了 build 会退出码 1 提醒你。`npm test` 跑单元测试。
 
-本地预览主页需要起 HTTP 服务（`file://` 下浏览器不让读本地 json，页面会直接提示）：
-
-```powershell
-python -m http.server -d docs 8000   # 打开 http://127.0.0.1:8000/
-```
+主页数据在构建时已经内联进 `docs/index.html`，双击直接打开就能看到完整列表，不用起服务。发布到 GitHub Pages 时同理，直接把 `docs/` 推上去即可。
 
 ### Git 工作流
 

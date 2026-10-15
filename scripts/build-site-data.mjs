@@ -157,6 +157,23 @@ export function injectHeroCount(html, count) {
   return { html: out, ok: missing.length === 0, missing };
 }
 
+/**
+ * 把技能数据内联进主页的 <script type="application/json" id="skill-data">。
+ * 内联的意义：浏览器禁止 file:// 读取本地文件，若只靠 fetch，
+ * 双击打开主页就看不到任何技能。放在 </body> 前是为了不阻塞首屏渲染。
+ * JSON 内联在 script 标签里，唯一要防的是 </script> 提前闭合。
+ */
+export function injectInlineData(html, payload) {
+  const re = /(<script type="application\/json" id="skill-data">)([\s\S]*?)(<\/script>)/;
+  if (!re.test(html)) return { html, ok: false };
+  // 换行+缩进是可读性考虑；</ 转义防止标签提前闭合
+  const json = JSON.stringify(payload).replace(/</g, '\\u003c');
+  return {
+    html: html.replace(re, (_m, open, _inner, close) => `${open}\n${json}\n${close}`),
+    ok: true,
+  };
+}
+
 /** 只改 README 各 skill 段落的标题行（名称+版本）与「触发词：」行，其余一字不动。 */
 export function injectReadme(readme, records) {
   let out = readme;
@@ -197,8 +214,10 @@ export function withSameEol(original, text) {
 
 /** 比对口径：排除每次都会变的 generatedAt，并把 CRLF 归一成 LF 后再比。 */
 function sameContent(a, b) {
+  // generatedAt 有两种写法：skills.json 是缩进过的（`"generatedAt": "…"`），
+  // 主页内联的是压缩过的（`"generatedAt":"…"`），空格可省，两种都要覆盖。
   const norm = (s) => (s === null ? s : s
-    .replace(/"generatedAt": "[^"]*"/, '"generatedAt": ""')
+    .replace(/"generatedAt":\s*"[^"]*"/g, '"generatedAt":""')
     .replace(/\r\n/g, '\n'));
   return norm(a) === norm(b);
 }
@@ -233,6 +252,8 @@ function main() {
   if (!injected.ok) warnings.push('index.html 缺少 <!-- auto:meta:count:begin/end --> 锚点，meta 数字未更新');
   const counted = injectHeroCount(injected.html, records.length);
   for (const id of counted.missing) warnings.push(`index.html 找不到 id="${id}"，首屏技能数量未更新`);
+  const inlined = injectInlineData(counted.html, payload);
+  if (!inlined.ok) warnings.push('index.html 缺少 <script type="application/json" id="skill-data">，双击打开将看不到技能列表');
   // 告警在锚点检查之后再打印，否则这条会被漏掉（静默失败比没有校验更糟）。
   for (const w of warnings) console.warn(`  告警: ${w}`);
   const readmeSrc = readFileSync(README, 'utf8');
@@ -240,7 +261,7 @@ function main() {
   const readmeOut = withSameEol(readmeSrc, injectReadme(readmeSrc, records));
   const targets = [
     [SKILLS_JSON, jsonText],
-    [HOMEPAGE, counted.html],
+    [HOMEPAGE, withSameEol(html, inlined.html)],
     [README, readmeOut],
   ];
   const { drift, updated } = applyTargets(targets, { check });

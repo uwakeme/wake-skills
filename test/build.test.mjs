@@ -10,6 +10,7 @@ import {
   buildSkillsJson,
   injectMeta,
   injectHeroCount,
+  injectInlineData,
   injectReadme,
   applyTargets,
   withSameEol,
@@ -370,3 +371,55 @@ test('漂移检测链路：手动改坏首屏数量后，check 会判为漂移',
 });
 
 
+
+// ---- 内联数据：让双击打开也能看到列表 ----
+
+test('injectInlineData: 把 payload 写进内联 script 块', () => {
+  const src = '<body><script type="application/json" id="skill-data">{}</script></body>';
+  const r = injectInlineData(src, { count: 2, skills: [{ name: 'a' }] });
+  assert.ok(r.ok);
+  const json = /id="skill-data">([\s\S]*?)<\/script>/.exec(r.html)[1].trim();
+  assert.deepEqual(JSON.parse(json), { count: 2, skills: [{ name: 'a' }] });
+});
+
+test('injectInlineData: 幂等，连跑两次结果一致', () => {
+  const src = '<script type="application/json" id="skill-data">{}</script>';
+  const once = injectInlineData(src, { count: 1, skills: [] }).html;
+  const twice = injectInlineData(once, { count: 1, skills: [] }).html;
+  assert.equal(twice, once);
+});
+
+test('injectInlineData: 缺少目标块时告警返回、不改文件', () => {
+  const src = '<body>没有数据块</body>';
+  const r = injectInlineData(src, { count: 0 });
+  assert.equal(r.ok, false);
+  assert.equal(r.html, src, '定位失败时必须原样返回');
+});
+
+test('injectInlineData: 内容含闭合标签时转义，不会提前闭合 script', () => {
+  const src = '<script type="application/json" id="skill-data">{}</script>';
+  const evil = '</script><img src=x onerror=alert(1)>';
+  const r = injectInlineData(src, { count: 1, skills: [{ name: 'a', desc: evil }] });
+  assert.ok(!r.html.includes(evil), 'payload 里的闭合标签必须被转义');
+  const json = /id="skill-data">([\s\S]*?)<\/script>/.exec(r.html)[1].trim();
+  assert.equal(JSON.parse(json).skills[0].desc, evil, '转义后仍应能还原原文');
+});
+
+test('applyTargets: 内联数据的 generatedAt 变化不算漂移', () => {
+  const file = fixture('generatedAt.json', '');
+  const tpl = '<script type="application/json" id="skill-data">%DATA%</script>';
+  const a = tpl.replace('%DATA%', JSON.stringify({ generatedAt: '2026-01-01T00:00:00.000Z', count: 1, skills: [] }));
+  const b = tpl.replace('%DATA%', JSON.stringify({ generatedAt: '2026-06-06T06:06:06.000Z', count: 1, skills: [] }));
+  writeFileSync(file, b, 'utf8');
+  const r = applyTargets([[file, a]], { check: true });
+  assert.deepEqual(r.drift, [], '压缩 JSON 的 generatedAt 也必须被排除');
+});
+
+test('applyTargets: 内联数据真实变化要能被抓到', () => {
+  const tpl = '<script type="application/json" id="skill-data">%DATA%</script>';
+  const a = tpl.replace('%DATA%', JSON.stringify({ generatedAt: 'x', count: 1, skills: [{ name: 'a' }] }));
+  const b = tpl.replace('%DATA%', JSON.stringify({ generatedAt: 'x', count: 2, skills: [{ name: 'a' }] }));
+  const file = fixture('inline-real-drift.html', b);
+  const r = applyTargets([[file, a]], { check: true });
+  assert.deepEqual(r.drift, [file], '内容真变了必须报漂移');
+});

@@ -316,9 +316,7 @@ footer { border-top: 1px solid var(--border); }
         <div class="filter-bar" id="skill-filters" role="group" aria-label="按分类筛选"></div>
         <div id="skill-list"></div>
         <div id="skill-load-error" hidden>
-          <p class="shelf-note">本页数据来自 <code>docs/skills.json</code>，浏览器禁止 <code>file://</code> 读取本地文件。
-            请在仓库根目录运行 <code>python -m http.server -d docs 8000</code>，再打开
-            <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a>。</p>
+          <p class="shelf-note">技能数据加载失败。请在仓库根目录运行 <code>npm run build</code> 重新生成主页。</p>
         </div>
       </div>
       <p class="shelf-note reveal">每个技能一个独立插件，清单在其目录下的 <code>.claude-plugin/plugin.json</code>。列表、版本与触发词由 <code>scripts/build-site-data.mjs</code> 从各 SKILL.md 与 marketplace.json 生成。</p>
@@ -585,11 +583,18 @@ if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'Int
     render();
   };
 
-  if (location.protocol === 'file:') {
-    errEl.hidden = false;
-    listEl.hidden = true;
-    return;
+  /* 数据优先读构建期内联的 JSON：浏览器禁止 file:// 读本地文件，
+     内联后双击也能看到完整列表；skills.json 只作降级。 */
+  var inline = document.getElementById('skill-data');
+  if (inline && inline.textContent.trim()) {
+    try {
+      window.__renderSkills(JSON.parse(inline.textContent));
+      return;
+    } catch (e) {
+      console.error('内联技能数据解析失败，回退 fetch：', e);
+    }
   }
+
   fetch('skills.json')
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -599,11 +604,17 @@ if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'Int
     .catch(function (err) {
       errEl.hidden = false;
       errEl.querySelector('p').textContent =
-        '技能数据加载失败（' + err.message + '）。请运行 npm run build 后重试。';
+        '技能数据加载失败（' + err.message + '）。请运行 npm run build 后重新生成主页。';
       listEl.hidden = true;
     });
 })();
 </script>
+
+<!-- auto:data:begin —— 以下内容由 npm run build 注入，请勿手改 -->
+<script type="application/json" id="skill-data">
+{"generatedAt":"2026-10-15T16:21:44.266Z","repo":{"user":"uwakeme","repo":"wake-skills","branch":"main"},"count":5,"categories":["design","documentation","productivity"],"skills":[{"name":"article-valuator","version":"0.1.0","category":"productivity","keywords":["article","reading","evaluation","skills"],"description":"评估文章值不值得读：抓取链接正文（或分析粘贴文本），按深度、可操作性、新颖度、相关性四维打分，给出 10 分制结论与理由。","triggers":["帮我看看这篇文章值不值得读/学","评估一下这个链接","这个文章有价值吗","这篇文章值得花时间吗","帮我分析一下这篇的含金量","看看要不要收藏这篇"],"triggerSource":"skill-md","antiTriggers":["只想摘要或翻译文章（没有价值判断）","想让我直接讲解文章内容、解答文章里的问题","需要事实核查某条新闻的真假"],"references":[],"url":"https://github.com/uwakeme/wake-skills/tree/main/article-valuator","installCmd":"mavis skill install https://github.com/uwakeme/wake-skills/tree/main/article-valuator"},{"name":"readme-craft","version":"0.2.1","category":"documentation","keywords":["readme","documentation","gfm","skills"],"description":"生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。","triggers":["生成 README","写一份 README","补项目文档","readme 怎么写","我的项目需要一个 README","新项目初始化 README","完善项目说明"],"triggerSource":"skill-md","antiTriggers":["需要同时维护 CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层","需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）","写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件"],"references":["banner.md","gfm-syntax.md","humanizer-rules.md","i18n.md","templates.md"],"url":"https://github.com/uwakeme/wake-skills/tree/main/readme-craft","installCmd":"mavis skill install https://github.com/uwakeme/wake-skills/tree/main/readme-craft"},{"name":"readme-banner","version":"0.1.0","category":"design","keywords":["readme","banner","svg","design"],"description":"为 GitHub README 生成顶部 banner / hero 图，支持两种路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。同时支持两种都跑、各 3 张候选对比。","triggers":["生成 README banner","做个项目 banner","README 顶部图","SVG banner","hero 图"],"triggerSource":"skill-md","antiTriggers":["只是要小 logo / favicon","已经在用 readme-craft 写 README 正文","已有现成 banner，只想优化或转格式"],"references":["design-spec.md","prompt-image.md","prompt-svg.md"],"url":"https://github.com/uwakeme/wake-skills/tree/main/readme-banner","installCmd":"mavis skill install https://github.com/uwakeme/wake-skills/tree/main/readme-banner"},{"name":"changelog-craft","version":"0.1.0","category":"documentation","keywords":["changelog","release-notes","git","skills"],"description":"维护符合 Keep a Changelog 1.1.0 规范、说人话的 CHANGELOG.md。逐笔模式在提交时判定改动是否值得写一条（追加进 Unreleased 并随本次提交），成段模式在发版时把 Unreleased 归段成新版本并对照 git log 补漏。","triggers":["生成 CHANGELOG","写 changelog","更新更新日志","这个版本改了啥","整理 release notes","提交","commit","帮我提交这些改动"],"triggerSource":"skill-md","antiTriggers":["只想发布 GitHub Release","想连 tag 创建一起管","生成 API 级接口 diff 清单"],"references":["format.md"],"url":"https://github.com/uwakeme/wake-skills/tree/main/changelog-craft","installCmd":"mavis skill install https://github.com/uwakeme/wake-skills/tree/main/changelog-craft"},{"name":"homepage-craft","version":"0.2.0","category":"design","keywords":["homepage","landing-page","github-pages","design","skills"],"description":"为开源项目生成优美的单文件 HTML 主页：扫描仓库（manifest、README、截图、git 元信息），产出可直接发布到 GitHub Pages 的 docs/index.html。自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）提升视觉质量，未安装时退回内置设计基线。生成后可经用户确认自动部署到 GitHub Pages（commit + push + gh 开启 Pages），发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。","triggers":["给项目生成主页","做一个 landing page","生成项目官网","GitHub Pages 首页","project homepage","把 README 变成网页","开源项目展示页","给我的库做个介绍页","把主页部署上线"],"triggerSource":"skill-md","antiTriggers":["要写 / 改 README.md 本身（Markdown 文档，不是网页）","只要一张 README 顶部 banner 图","通用前端开发或任意 UI 设计（不是\"仓库","项目已有 VitePress / Docusaurus / MkDocs 文档站，且用户想往文档站里加页"],"references":["design-baseline.md","page-anatomy.md"],"url":"https://github.com/uwakeme/wake-skills/tree/main/homepage-craft","installCmd":"mavis skill install https://github.com/uwakeme/wake-skills/tree/main/homepage-craft"}]}
+</script>
+<!-- auto:data:end -->
 
 </body>
 </html>

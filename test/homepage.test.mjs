@@ -45,9 +45,13 @@ test('详情面板样式与渲染函数存在', () => {
   assert.ok(html.includes('__renderSkills'));
 });
 
-test('file:// 协议有显式提示分支', () => {
-  assert.ok(html.includes('location.protocol') || html.includes("protocol === 'file:'"));
-  assert.ok(html.includes('http.server'));
+test('内联技能数据优先于 fetch，双击打开也能看到列表', () => {
+  assert.ok(
+    html.includes('<script type="application/json" id="skill-data">'),
+    '主页应含内联数据 script 块',
+  );
+  assert.ok(html.includes('inline && inline.textContent.trim()'), '渲染逻辑应优先读内联数据');
+  assert.ok(!html.includes("protocol === 'file:'"), '不应再有 file:// 提前 return 的分支');
 });
 
 // ---- 数量表述：锚点区内 / 汉字数词 / 运行时注入 ----
@@ -132,10 +136,12 @@ function allText(node) {
 }
 
 /** 抠出 index.html 里的渲染段，在 Node 里用桩件执行。 */
-function loadRenderer({ protocol = 'http:', fetchImpl } = {}) {
+function loadRenderer({ protocol = 'http:', fetchImpl, inlineData = null } = {}) {
   const start = html.indexOf(MARK);
   assert.ok(start > -1, `index.html 缺少渲染段标记 ${MARK}`);
-  const source = html.slice(start + MARK.length, html.lastIndexOf('</script>'));
+  // 渲染段结束于它自己的 </script>；页面末尾还有内联数据块，
+  // 不能用 lastIndexOf('</script>')，那会把数据块也吃进来。
+  const source = html.slice(start + MARK.length, html.indexOf('</script>', start));
   const errorBox = createNode('div');
   errorBox.appendChild(createNode('p')); // 真实 DOM 里是 <p class="shelf-note">
   const nodes = {
@@ -143,6 +149,16 @@ function loadRenderer({ protocol = 'http:', fetchImpl } = {}) {
     'skill-filters': createNode('div'),
     'skill-load-error': errorBox,
   };
+  // inlineData 默认取主页里真实内联的那份 JSON（构建期注入）。
+  const inlineNode = createNode('script');
+  if (inlineData === null) {
+    const real = /<script type="application\/json" id="skill-data">([\s\S]*?)<\/script>/.exec(html);
+    assert.ok(real, 'index.html 应含内联技能数据 script 块');
+    inlineNode._text = real[1].trim();
+  } else {
+    inlineNode._text = inlineData;
+  }
+  nodes['skill-data'] = inlineNode;
   const doc = {
     body: createNode('body'),
     getElementById: (id) => nodes[id] ?? null,
@@ -151,22 +167,52 @@ function loadRenderer({ protocol = 'http:', fetchImpl } = {}) {
   const win = { isSecureContext: true };
   const fetchStub = fetchImpl || (() => Promise.reject(new Error('fetch 未注入')));
   const render = new Function(
-    'document', 'window', 'location', 'navigator', 'fetch', 'setTimeout',
+    'document', 'window', 'location', 'navigator', 'fetch', 'setTimeout', 'console',
     `${source}\nreturn window.__renderSkills;`,
-  )(doc, win, { protocol }, { clipboard: null }, fetchStub, () => {});
+  )(doc, win, { protocol }, { clipboard: null }, fetchStub, () => {}, { error: () => {} });
   return { render, nodes, doc, win };
 }
 
-test('file:// 下不发请求，直接显示本地 http server 提示', () => {
+test('file:// 下靠内联数据渲染，不发请求、不显示错误提示', () => {
   let called = 0;
-  const { render, nodes } = loadRenderer({
+  const { nodes } = loadRenderer({
     protocol: 'file:',
-    fetchImpl: () => { called++; return Promise.resolve({ ok: true, json: async () => data }); },
+    fetchImpl: () => { called++; return Promise.resolve({ ok: true, json: async () => ({ count: 0, skills: [] }) }); },
   });
-  assert.equal(called, 0, 'file:// 下 fetch 必然失败，不该白跑一次');
-  assert.equal(nodes['skill-load-error'].hidden, false, '应显示 file:// 提示');
-  assert.equal(nodes['skill-list'].hidden, true, '数据缺失时列表不该留空壳');
-  assert.equal(typeof render, 'function', '__renderSkills 仍应挂上，供内联脚本调用');
+  assert.equal(called, 0, 'file:// 下有内联数据就不该走 fetch');
+  assert.equal(nodes['skill-load-error'].hidden, true, '有内联数据时不该显示错误提示');
+  assert.equal(nodes['skill-list'].hidden, false, '列表应可见');
+  assert.equal(nodes['skill-list'].children.length, 5, 'file:// 下也应渲染出 5 个 skill');
+});
+
+test('内联数据为空时回落 fetch', async () => {
+  let called = 0;
+  const { nodes } = loadRenderer({
+    protocol: 'http:',
+    inlineData: '   ',
+    fetchImpl: () => {
+      called++;
+      return Promise.resolve({ ok: true, json: async () => ({ count: 1, categories: [], skills: [{ name: 'x', version: '1.0.0', category: 'design', description: 'd', triggers: [], triggerSource: 'none', antiTriggers: [], references: [], url: 'u', installCmd: 'c' }] }) });
+    },
+  });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(called, 1, '内联为空应回落到 fetch');
+  assert.equal(nodes['skill-list'].children.length, 1);
+});
+
+test('内联 JSON 损坏时不崩、也不白屏，回落到 fetch', async () => {
+  let called = 0;
+  const { nodes } = loadRenderer({
+    protocol: 'http:',
+    inlineData: '{ 这不是 JSON',
+    fetchImpl: () => {
+      called++;
+      return Promise.resolve({ ok: true, json: async () => ({ count: 0, categories: [], skills: [] }) });
+    },
+  });
+  await new Promise((r) => setImmediate(r));
+  assert.equal(called, 1, '损坏的内联数据应回落到 fetch');
+  assert.equal(nodes['skill-load-error'].hidden, true, 'fetch 成功后不该报错');
 });
 
 test('真实 skills.json 全量渲染：条数、名称、链接都对得上', () => {

@@ -1,0 +1,4 @@
+# 仓库统一用 LF：scripts/build-site-data.mjs 生成的行尾是 LF，
+# 若检出成 CRLF（Windows core.autocrlf=true）会造成混合行尾与伪漂移。
+# text=auto 让 git 自行识别二进制文件，二进制不会被转换。
+* text=auto eol=lf

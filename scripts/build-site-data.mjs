@@ -112,43 +112,88 @@ export function buildSkillsJson(records) {
   };
 }
 
+/** marketplace.json 是手工可编辑的，skill 名直接拼进正则前必须转义，否则 `a|b` 会变成或分支。 */
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * 只在 <!-- auto:meta:count:begin/end --> 锚点区间内替换计数。
  * 没有锚点就原样返回并 ok=false：绝不用无锚点的全文件正则去改主页。
+ * 用函数式替换：锚点区间里一旦出现 $& / $1 / $`，字符串替换会把整段匹配复制回来。
  */
 export function injectMeta(html, count) {
   const re = /(<!-- auto:meta:count:begin -->)([\s\S]*?)(<!-- auto:meta:count:end -->)/;
   if (!re.test(html)) return { html, ok: false };
   const block = html.match(re)[2].replace(/\d+ 个技能/g, `${count} 个技能`);
-  return { html: html.replace(re, `$1${block}$3`), ok: true };
+  return { html: html.replace(re, (_m, open, _inner, close) => `${open}${block}${close}`), ok: true };
 }
 
 /** 只改 README 各 skill 段落的标题行（名称+版本）与「触发词：」行，其余一字不动。 */
 export function injectReadme(readme, records) {
   let out = readme;
   for (const r of records) {
+    const key = escapeRegExp(r.name);
     // 标题行必须行内锚定：\s* 会跨过换行把描述段落的第一个词吃掉，
     // 那等于改写手写段落。只吞标题行自己的尾巴（旧版本号），并用函数式
     // 替换避免版本号里的 $ 被当成替换模式。
-    const head = new RegExp(`(###\\s*\\[${r.name}\\]\\([^)]*\\))[^\\S\\n]*[^\\n]*`);
+    const head = new RegExp(`(###\\s*\\[${key}\\]\\([^)]*\\))[^\\S\\n]*[^\\n]*`);
     if (head.test(out)) {
       out = out.replace(head, (_m, g1) => `${g1} \`v${r.version}\``);
     }
     const segRe = new RegExp(
-      `(###\\s*\\[${r.name}\\]\\([^)]*\\)[\\s\\S]*?)(?=\\n###\\s|\\n##\\s|$)`,
+      `(###\\s*\\[${key}\\]\\([^)]*\\)[\\s\\S]*?)(?=\\n###\\s|\\n##\\s|$)`,
     );
     const seg = out.match(segRe);
     if (!seg) continue;
     const line = r.triggers.length
       ? `触发词：${r.triggers.map((t) => `\`${t}\``).join('、')}。`
       : '';
+    // 两处替换都必须是函数式：触发词里出现 $& / $` / $1 / $' 时，
+    // 字符串替换会把整段匹配（连同手写描述）复制回结果，等于篡改手写段落。
     const body = line
-      ? seg[0].replace(/\n触发词：[^\n]*/, `\n${line}`)
+      ? seg[0].replace(/\n触发词：[^\n]*/, () => `\n${line}`)
       : seg[0].replace(/\n触发词：[^\n]*/, '');
-    out = out.replace(seg[0], body);
+    out = out.replace(seg[0], () => body);
   }
   return out;
 }
+
+/** 写入时沿用原文件的主导行尾，避免注入的几行变成裸 LF、把文件搞成混合行尾。 */
+export function withSameEol(original, text) {
+  const crlf = (original.match(/\r\n/g) || []).length;
+  const lf = (original.match(/(?<!\r)\n/g) || []).length;
+  if (crlf <= lf) return text;
+  return text.replace(/(?<!\r)\n/g, '\r\n');
+}
+
+/** 比对口径：排除每次都会变的 generatedAt，并把 CRLF 归一成 LF 后再比。 */
+function sameContent(a, b) {
+  const norm = (s) => (s === null ? s : s
+    .replace(/"generatedAt": "[^"]*"/, '"generatedAt": ""')
+    .replace(/\r\n/g, '\n'));
+  return norm(a) === norm(b);
+}
+
+/**
+ * 落盘 / 漂移检测的唯一出口。
+ * check 模式只报告不写；build 模式写入并回报改了哪些。
+ * targets 是 [绝对路径, 目标内容] 列表。
+ */
+export function applyTargets(targets, { check = false } = {}) {
+  const drift = [];
+  const updated = [];
+  for (const [file, text] of targets) {
+    const cur = existsSync(file) ? readFileSync(file, 'utf8') : null;
+    if (sameContent(cur, text)) continue;
+    drift.push(file);
+    if (check) continue;
+    writeFileSync(file, text);
+    updated.push(file);
+  }
+  return { drift, updated };
+}
+
 
 function main() {
   const check = process.argv.includes('--check');
@@ -160,25 +205,22 @@ function main() {
   if (!injected.ok) warnings.push('index.html 缺少 <!-- auto:meta:count:begin/end --> 锚点，meta 数字未更新');
   // 告警在锚点检查之后再打印，否则这条会被漏掉（静默失败比没有校验更糟）。
   for (const w of warnings) console.warn(`  告警: ${w}`);
-  const readmeOut = injectReadme(readFileSync(README, 'utf8'), records);
+  const readmeSrc = readFileSync(README, 'utf8');
+  // 注入的行一律用原文件的行尾，别把 README 写成混合行尾。
+  const readmeOut = withSameEol(readmeSrc, injectReadme(readmeSrc, records));
   const targets = [
     [SKILLS_JSON, jsonText],
     [HOMEPAGE, injected.html],
     [README, readmeOut],
   ];
-  let drift = 0;
-  for (const [file, text] of targets) {
-    const cur = existsSync(file) ? readFileSync(file, 'utf8') : null;
-    const norm = (s) => (s === null ? s : s.replace(/"generatedAt": "[^"]*"/, '"generatedAt": ""'));
-    if (norm(cur) === norm(text)) continue;
-    drift += 1;
-    if (check) { console.error(`漂移: ${file}`); continue; }
-    writeFileSync(file, text);
-    console.log(`  已更新: ${file}`);
-  }
+  const { drift, updated } = applyTargets(targets, { check });
+  for (const f of updated) console.log(`  已更新: ${f}`);
   console.log(`${records.length} 个 skill：`);
   for (const r of records) console.log(`  - ${r.name} v${r.version} [${r.category}] 触发来源=${r.triggerSource} 触发词=${r.triggers.length}`);
-  if (check && drift) { console.error(`${drift} 处漂移，跑 npm run build 同步`); process.exit(1); }
+  if (check) {
+    for (const f of drift) console.error(`漂移: ${f}`);
+    if (drift.length) { console.error(`${drift.length} 处漂移，跑 npm run build 同步`); process.exit(1); }
+  }
 }
 
 if (process.argv[1] && process.argv[1].endsWith('build-site-data.mjs')) main();

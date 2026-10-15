@@ -93,13 +93,15 @@ test('extractAntiTriggers: 抽取「不要在以下情况使用」条目（readm
 
 test('extractTriggersFromReadme: 从 article-valuator 段落抓反引号触发词', () => {
   const t = extractTriggersFromReadme(readme, 'article-valuator');
+  // README 的触发词行现由 scripts/build-site-data.mjs 从 SKILL.md 生成，
+  // 此处断言的是「生成后的 README 仍是可回落解析的纯反引号列表」这一不变量。
   assert.deepEqual(t, [
-    '这篇文章值不值得读',
-    '评估这个链接',
-    '这篇文章有价值吗',
-    '要不要收藏这篇',
-    '这是不是软文',
-    '看看这个有没有干货',
+    '帮我看看这篇文章值不值得读/学',
+    '评估一下这个链接',
+    '这个文章有价值吗',
+    '这篇文章值得花时间吗',
+    '帮我分析一下这篇的含金量',
+    '看看要不要收藏这篇',
   ]);
 });
 

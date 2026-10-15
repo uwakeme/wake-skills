@@ -6,37 +6,37 @@
 
 ## 当前 skill
 
-### [readme-craft](./readme-craft)
+### [readme-craft](./readme-craft) `v0.2.1`
 
 生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。
 
 覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 4 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成）。
 
-触发词：`生成 README`、`写 README`、`补项目文档`、`新项目初始化 README`。
+触发词：`生成 README`、`写一份 README`、`补项目文档`、`readme 怎么写`、`我的项目需要一个 README`、`新项目初始化 README`、`完善项目说明`。
 
-### [article-valuator](./article-valuator)
+### [article-valuator](./article-valuator) `v0.1.0`
 
 评估一篇文章值不值得读/学。输入链接（自动抓取正文，含微信公众号反爬兜底策略）或粘贴文本，按 **深度与信息密度 / 可操作性 / 新颖度与时效 / 相关性** 四维打分（各带一句原文证据），输出 10 分制总分 + 明确结论（精读/浏览/跳过）+ 理由，可选继续生成内容摘要 / 亮点与槽点 / 阅读指南。
 
-触发词：`这篇文章值不值得读`、`评估这个链接`、`这篇文章有价值吗`、`要不要收藏这篇`、`这是不是软文`、`看看这个有没有干货`。
+触发词：`帮我看看这篇文章值不值得读/学`、`评估一下这个链接`、`这个文章有价值吗`、`这篇文章值得花时间吗`、`帮我分析一下这篇的含金量`、`看看要不要收藏这篇`。
 
-### [readme-banner](./readme-banner)
+### [readme-banner](./readme-banner) `v0.1.0`
 
 为 GitHub README 顶部生成 hero / banner 图。两种生成路径可选：让 LLM 直接写干净的 SVG 代码（首选，体积小、可二次编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。也支持两种都跑、各出 3 张候选对比。带 3 份 reference：`prompt-svg.md` / `prompt-image.md` / `design-spec.md`。
 
 触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`。
 
-### [changelog-craft](./changelog-craft)
+### [changelog-craft](./changelog-craft) `v0.1.0`
 
 维护符合 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/) 规范、说人话的 CHANGELOG.md。双模式：提交时逐笔判定改动是否值得写一条（追加进 `Unreleased` 段、随同一次 commit 提交），发版时把 `Unreleased` 归段成新版本并对照 git log 补漏。纯写作边界——不碰 tag、不碰发布。
 
-触发词：`生成 CHANGELOG`、`写 changelog`、`更新更新日志`、`这个版本改了啥`、`提交`（提交意图命中先过判定规则）。
+触发词：`生成 CHANGELOG`、`写 changelog`、`更新更新日志`、`这个版本改了啥`、`整理 release notes`、`提交`、`commit`、`帮我提交这些改动`。
 
-### [homepage-craft](./homepage-craft)
+### [homepage-craft](./homepage-craft) `v0.2.0`
 
 为开源项目生成优美的主页：扫描仓库（manifest、README、截图、git 元信息），产出单文件 HTML landing page（默认 `docs/index.html`，推上 GitHub Pages 即发布）。内容 100% 来自仓库真实素材，不编造数字和占位图。核心特性是**编排已安装的设计类 skill**——探测到 `ui-ux-pro-max` 就用它出设计系统、`frontend-design` / `superdesign` 管实现美感，一个都没装时退回内置设计基线（三风格方向 + 反 AI-slop 清单）。生成后可经用户确认**自动部署到 GitHub Pages**（commit + push + `gh` 开启 Pages；gh 不可用时降级为只推代码并给出手动开启步骤）；**发布策略由用户决定**：随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作，不碰工作区）。带 2 份 reference：`page-anatomy.md` 管章节结构与自检、`design-baseline.md` 管兜底美学。
 
-触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`把 README 变成网页`、`把主页部署上线`。
+触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`project homepage`、`把 README 变成网页`、`开源项目展示页`、`给我的库做个介绍页`、`把主页部署上线`。
 
 ## 安装
 

@@ -12,6 +12,7 @@
 - 新增 `.githooks/pre-commit`：暂存内容命中 `SKILL.md` / `marketplace.json` / `scripts/` 时自动同步生成物，build 失败则阻止提交（`b36d3f2`）
 - 新增 **homepage-craft** 技能：扫描仓库产出单文件 HTML 主页（`docs/index.html`，可直接发布到 GitHub Pages），自动编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign），生成后可经用户确认自动部署（commit + push + gh 开启 Pages）（[bb111e6]）
 - homepage-craft 首次 dogfood：为本仓库生成主页 `docs/index.html`（墨蓝夜编辑器风、frontmatter 卡签名元素，桌面 + 手机双宽度自检通过）（[7c9b33e]）
+- 新增 **review-brief** 技能：改动收尾时生成自包含的审查简报——原始需求与验收标准、变更范围（未提交变更或提交区间）、按需求符合性 / 潜在 bug / 影响面拆好的审查要点，交给另一个没有对话上下文的 agent 独立复查（[086c678]）
 
 ### Changed
 
@@ -23,6 +24,7 @@
 - 修复主页首屏 eyebrow 与仓库名片上的技能数量只由前端 JS 运行时改写、构建期不更新的问题：新增 `injectHeroCount` 定点注入，`--check` 现在能检测这两处的漂移（`22af90b`）
 - 修复 README 注入会把触发词里的 `$&` / `$1` 当替换模式、导致手写描述段落被复制篡改的隐患，注入改为函数式替换（`e8fe683`）
 - 修复触发词解析用「数量上限」判定散文，误伤 changelog-craft 与 homepage-craft 共 6 条真实触发词；改为按句号边界切分（`8559bd8`）
+- 测试里的技能数量断言改为从 marketplace.json 与主页内联数据推导，新增 skill 不再把测试弄红（`5658824`）
 - 新增 `.gitattributes` 统一 LF 行尾，修复 Windows `core.autocrlf=true` 下 `--check` 首次运行必报伪漂移（`e8fe683`）
 
 ## [0.2.0] - 2026-09-23
@@ -64,3 +66,4 @@
 [bb111e6]: https://github.com/uwakeme/wake-skills/commit/bb111e6
 [7c9b33e]: https://github.com/uwakeme/wake-skills/commit/7c9b33e
 [770efec]: https://github.com/uwakeme/wake-skills/commit/770efec
+[086c678]: https://github.com/uwakeme/wake-skills/commit/086c678

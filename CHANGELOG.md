@@ -16,6 +16,7 @@
 
 ### Changed
 
+- **review-brief 0.2.0**：补齐交接缺口——新增 bug / 问题背景（现象、复现、期望 vs 实际、根因、修复思路）、实现方自测记录与需求覆盖情况；提交表补日期并处理区间内无关提交、工作区无关改动与未配置远端的情况；写明审查方环境与变更获取方式（同工作区 / clone / patch）及审查前状态核对要求；修正「空节不删」与局限性节自相矛盾，明确 `review-briefs/` 是未跟踪交接物、不计入审查范围（[5a6ea49]）
 - 主页 skill 列表从 5 段硬编码 HTML 改为运行时渲染：点击卡片展开详情（完整描述、触发词、不适用场景、references 清单、可一键复制的安装命令），并支持按分类筛选（`e59e4f7`）
 - **homepage-craft 0.2.0**：部署流程改为两段询问（部署意向 + 发布策略），发布策略由用户决定——随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作、不碰工作区）；"Pages 已开启且源不同"安全阀覆盖 A/B 互切（[770efec]）
 
@@ -67,3 +68,4 @@
 [7c9b33e]: https://github.com/uwakeme/wake-skills/commit/7c9b33e
 [770efec]: https://github.com/uwakeme/wake-skills/commit/770efec
 [086c678]: https://github.com/uwakeme/wake-skills/commit/086c678
+[5a6ea49]: https://github.com/uwakeme/wake-skills/commit/5a6ea49

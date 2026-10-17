@@ -38,6 +38,10 @@
 
 触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`project homepage`、`把 README 变成网页`、`开源项目展示页`、`给我的库做个介绍页`、`把主页部署上线`。
 
+### [review-brief](./review-brief) `v0.1.0`
+
+触发词：`生成审查简报`、`总结本次修改`、`交接给另一个 agent 审查`、`审查交接`、`改完了整理给审查`、`review brief`、`这个改动帮我出一份复查清单`。
+
 ## 安装
 
 ### 作为 ZCode 插件市场

@@ -91,6 +91,27 @@
       ]
     },
     {
+      "name": "review-brief",
+      "source": "./review-brief",
+      "description": "Generate a self-contained review brief when a change is finished: the original requirement with acceptance criteria, the exact change set (working-tree diff or commit range), and dimension-specific review checkpoints, so a fresh agent with zero conversation context can independently review the change.",
+      "description_i18n": {
+        "en": "Generate a self-contained review brief when a change is finished: the original requirement with acceptance criteria, the exact change set (working-tree diff or commit range), and dimension-specific review checkpoints, so a fresh agent with zero conversation context can independently review the change.",
+        "zh-CN": "一轮修改收尾时生成自包含的审查简报：沉淀原始需求与验收标准、圈定本次变更范围（未提交变更或提交区间）、按需求符合性 / 潜在 bug / 影响面拟好具体审查要点，让没有任何对话上下文的审查 agent 也能独立复查。"
+      },
+      "version": "0.1.0",
+      "author": {
+        "name": "uwakeme"
+      },
+      "category": "productivity",
+      "keywords": [
+        "code-review",
+        "review",
+        "handoff",
+        "git",
+        "skills"
+      ]
+    },
+    {
       "name": "homepage-craft",
       "source": "./homepage-craft",
       "description": "Generate a beautiful single-file HTML homepage for an open-source project: scans the repo (manifest, README, screenshots, git metadata) and outputs a GitHub-Pages-ready docs/index.html. Detects and orchestrates installed design skills (frontend-design / ui-ux-pro-max / superdesign) for visual quality, falling back to a built-in design baseline when none are present. Optionally auto-deploys to GitHub Pages (commit + push + enable Pages via gh) after asking the user, who also picks the publishing strategy: ship with the main branch + /docs, or isolate on a dedicated gh-pages branch.",

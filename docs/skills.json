@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-15T09:01:04.962Z",
+  "generatedAt": "2026-10-17T12:22:09.935Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
     "branch": "main"
   },
-  "count": 5,
+  "count": 6,
   "categories": [
     "design",
     "documentation",
@@ -141,6 +141,37 @@
       ],
       "url": "https://github.com/uwakeme/wake-skills/tree/main/changelog-craft",
       "installCmd": "mavis skill install https://github.com/uwakeme/wake-skills/tree/main/changelog-craft"
+    },
+    {
+      "name": "review-brief",
+      "version": "0.1.0",
+      "category": "productivity",
+      "keywords": [
+        "code-review",
+        "review",
+        "handoff",
+        "git",
+        "skills"
+      ],
+      "description": "一轮修改收尾时生成自包含的审查简报：沉淀原始需求与验收标准、圈定本次变更范围（未提交变更或提交区间）、按需求符合性 / 潜在 bug / 影响面拟好具体审查要点，让没有任何对话上下文的审查 agent 也能独立复查。",
+      "triggers": [
+        "生成审查简报",
+        "总结本次修改",
+        "交接给另一个 agent 审查",
+        "审查交接",
+        "改完了整理给审查",
+        "review brief",
+        "这个改动帮我出一份复查清单"
+      ],
+      "triggerSource": "skill-md",
+      "antiTriggers": [
+        "用户只想让你当场把刚写的代码再看一遍，不需要产出交接文档",
+        "要走 GitHub PR / GitLab MR 的正式评论流程",
+        "审查对象不是代码变更（文章、方案、文档本身）"
+      ],
+      "references": [],
+      "url": "https://github.com/uwakeme/wake-skills/tree/main/review-brief",
+      "installCmd": "mavis skill install https://github.com/uwakeme/wake-skills/tree/main/review-brief"
     },
     {
       "name": "homepage-craft",

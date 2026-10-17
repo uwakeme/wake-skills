@@ -182,7 +182,9 @@ test('file:// 下靠内联数据渲染，不发请求、不显示错误提示', 
   assert.equal(called, 0, 'file:// 下有内联数据就不该走 fetch');
   assert.equal(nodes['skill-load-error'].hidden, true, '有内联数据时不该显示错误提示');
   assert.equal(nodes['skill-list'].hidden, false, '列表应可见');
-  assert.equal(nodes['skill-list'].children.length, 5, 'file:// 下也应渲染出 5 个 skill');
+  // 渲染条数对照内联数据自身的 count，不硬编码：新增 skill 不该弄红这条。
+  const inlineCount = JSON.parse(nodes['skill-data']._text).count;
+  assert.equal(nodes['skill-list'].children.length, inlineCount, '渲染条数应等于内联数据的 count');
 });
 
 test('内联数据为空时回落 fetch', async () => {

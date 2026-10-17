@@ -22,6 +22,12 @@ const README_PATH = join(repoRoot, 'README.md');
 const JSON_PATH = join(repoRoot, 'docs', 'skills.json');
 const HOMEPAGE_PATH = join(repoRoot, 'docs', 'index.html');
 
+/** marketplace 登记数：数量断言一律从登记表推导，硬编码会让每次新增 skill 都红一次。 */
+function marketplaceCount() {
+  const marketplace = JSON.parse(readFileSync(join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
+  return marketplace.plugins.length;
+}
+
 /** 首屏两处计数的最小 fixture，结构照抄真实 index.html 的写法。 */
 function heroFixture(heroText = '5 skills', fmText = '5') {
   return [
@@ -46,7 +52,7 @@ function fixture(name, content) {
 
 test('每个已登记 skill 都产出记录且字段齐全', () => {
   const { records, warnings } = buildSkillRecords(repoRoot);
-  assert.equal(records.length, 5, 'marketplace.json 登记了 5 个 skill');
+  assert.equal(records.length, marketplaceCount(), 'records 数应与 marketplace.json 登记数一致');
   for (const r of records) {
     assert.ok(r.name && r.version, `${r.name} 缺 name/version`);
     assert.ok(r.description.length > 0, `${r.name} 缺描述`);
@@ -88,7 +94,7 @@ test('references 来自目录实扫而非正文解析', () => {
 test('buildSkillsJson 的结构含 count / categories 且 skills 顺序与 records 一致', () => {
   const { records } = buildSkillRecords(repoRoot);
   const json = buildSkillsJson(records);
-  assert.equal(json.count, 5);
+  assert.equal(json.count, marketplaceCount());
   assert.deepEqual(json.categories, ['design', 'documentation', 'productivity']);
   assert.deepEqual(json.skills.map((s) => s.name), records.map((s) => s.name));
   assert.ok(json.repo.user && json.repo.repo, 'repo 信息应可用于拼安装链接');
@@ -360,9 +366,11 @@ test('漂移检测链路：手动改坏首屏数量后，check 会判为漂移',
   );
   assert.notEqual(broken, html, '先确认这份 fixture 真的被改坏了');
   // 注入按传入 count 重写该处，坏文件与生成物不一致 → 会被判漂移
-  const expected = injectHeroCount(broken, 5);
+  // count 从当前主页反读而不是硬编码：新增 skill 改了生成物也不该弄红这条。
+  const realCount = Number(/id="fm-skill-count">(\d+)</.exec(html)[1]);
+  const expected = injectHeroCount(broken, realCount);
   assert.equal(expected.ok, true);
-  assert.ok(expected.html.includes(`id="fm-skill-count">5</span>`), '注入应按传入 count 重写该处');
+  assert.ok(expected.html.includes(`id="fm-skill-count">${realCount}</span>`), '注入应按传入 count 重写该处');
   assert.equal(expected.html, html, '重新注入后应与原始主页一致');
   const file = fixture('index.html', broken);
   const res = applyTargets([[file, expected.html]], { check: true });

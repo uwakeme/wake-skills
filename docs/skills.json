@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T16:52:43.905Z",
+  "generatedAt": "2026-10-17T16:57:40.101Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -144,7 +144,7 @@
     },
     {
       "name": "review-brief",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "category": "productivity",
       "keywords": [
         "code-review",

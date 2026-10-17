@@ -1,7 +1,7 @@
 {
   "name": "review-brief",
-  "version": "0.1.0",
-  "description": "Generate a self-contained review brief when a change is finished: the original requirement with acceptance criteria, the exact change set (working-tree diff or commit range), and dimension-specific review checkpoints, so a fresh agent with zero conversation context can independently review the change.",
+  "version": "0.2.0",
+  "description": "Generate a self-contained review brief when a change is finished: the original requirement with acceptance criteria, the exact change set (working-tree diff or commit range), bug context and the implementer's self-test record, and dimension-specific review checkpoints, so a fresh agent with zero conversation context can independently review the change.",
   "author": { "name": "uwakeme" },
   "license": "MIT",
   "skills": "."

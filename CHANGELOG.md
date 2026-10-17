@@ -16,6 +16,7 @@
 
 ### Changed
 
+- **review-brief 0.2.2**：生成后的回复附一段可直接复制给审查 agent 的 prompt（填好简报路径、变更范围、仓库与环境假设）——用户复制即可转交，读不到文件时再附简报正文与 patch；同步补自检项、Output contract 与示例（[78dfcf8]）
 - **review-brief 0.2.1**：长任务先回查会话最早的原始消息再总结需求——压缩摘要只当索引、不冒充用户原话；原始消息不可得时标注来源与不确定性，并新增对应的自检项、失败处理与示例（[7c9d676]）
 - **review-brief 0.2.0**：补齐交接缺口——新增 bug / 问题背景（现象、复现、期望 vs 实际、根因、修复思路）、实现方自测记录与需求覆盖情况；提交表补日期并处理区间内无关提交、工作区无关改动与未配置远端的情况；写明审查方环境与变更获取方式（同工作区 / clone / patch）及审查前状态核对要求；修正「空节不删」与局限性节自相矛盾，明确 `review-briefs/` 是未跟踪交接物、不计入审查范围（[5a6ea49]）
 - 主页 skill 列表从 5 段硬编码 HTML 改为运行时渲染：点击卡片展开详情（完整描述、触发词、不适用场景、references 清单、可一键复制的安装命令），并支持按分类筛选（`e59e4f7`）
@@ -71,3 +72,4 @@
 [086c678]: https://github.com/uwakeme/wake-skills/commit/086c678
 [5a6ea49]: https://github.com/uwakeme/wake-skills/commit/5a6ea49
 [7c9d676]: https://github.com/uwakeme/wake-skills/commit/7c9d676
+[78dfcf8]: https://github.com/uwakeme/wake-skills/commit/78dfcf8

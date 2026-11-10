@@ -85,7 +85,7 @@ test('references 来自目录实扫而非正文解析', () => {
   const { records } = buildSkillRecords(repoRoot);
   const r = records.find((x) => x.name === 'readme-craft');
   assert.deepEqual(r.references, [
-    'banner.md', 'gfm-syntax.md', 'humanizer-rules.md', 'i18n.md', 'templates.md',
+    'banner.md', 'gfm-syntax.md', 'humanizer-rules.md', 'i18n.md', 'screenshots.md', 'templates.md',
   ]);
   const banner = records.find((x) => x.name === 'readme-banner');
   assert.equal(banner.references.length, 3);

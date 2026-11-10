@@ -14,7 +14,9 @@
 
 生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。
 
-覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 4 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成）。
+覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 5 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成、`screenshots.md` 管界面截图拍摄）。
+
+web-app / tutorial 类项目还会自动驱动浏览器拍下界面的真实截图：自己拉起 dev server、渲染页面、出多张候选交你挑，选中的落进 `assets/screenshots/` 并嵌入 README 的 Screenshots 章节。拍不到就跳过，不影响 README 其余部分。
 
 触发词：`生成 README`、`写一份 README`、`补项目文档`、`readme 怎么写`、`我的项目需要一个 README`、`新项目初始化 README`、`完善项目说明`、`生成项目截图`、`README 里放界面截图`、`给项目拍截图`。
 

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320" role="img" text-rendering="geometricPrecision" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', Roboto, 'Helvetica Neue', Arial, sans-serif">
+  <title>Wake-Skills — 个人 skill 仓库</title>
+  <desc>居中排版的 README 顶部 banner：深灰蓝底，两条缓慢左右漂移的斜向柔光带，四角直角括号轻微呼吸，文字居中静止。</desc>
+  <style>
+    .an-b1 { animation: c1b1 26s ease-in-out infinite; }
+    .an-b2 { animation: c1b2 34s ease-in-out infinite; }
+    .an-rule { animation: c1rule 5s ease-in-out infinite; }
+    .an-brk { animation: c1brk 7s ease-in-out infinite; }
+    .d2 { animation-delay: .7s; } .d3 { animation-delay: 1.4s; } .d4 { animation-delay: 2.1s; }
+    @keyframes c1b1 { 0%,100% { transform: translateX(-64px); } 50% { transform: translateX(64px); } }
+    @keyframes c1b2 { 0%,100% { transform: translateX(64px); } 50% { transform: translateX(-64px); } }
+    @keyframes c1rule { 0%,100% { opacity:.4; } 50% { opacity:1; } }
+    @keyframes c1brk { 0%,100% { opacity:.28; } 50% { opacity:.8; } }
+    @media (prefers-reduced-motion: reduce){ .an{animation:none !important} }
+  </style>
+  <defs>
+    <linearGradient id="c1bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141a24"/><stop offset="1" stop-color="#111722"/>
+    </linearGradient>
+    <linearGradient id="c1am" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e9a15a" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#e9a15a" stop-opacity=".17"/>
+      <stop offset="1" stop-color="#e9a15a" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="c1te" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#63c7b8" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#63c7b8" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#63c7b8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" fill="url(#c1bg)"/>
+  <g class="an-b1"><rect x="-260" y="52" width="980" height="104" fill="url(#c1am)" transform="rotate(-15 640 160)"/></g>
+  <g class="an-b2"><rect x="560" y="196" width="980" height="86" fill="url(#c1te)" transform="rotate(-15 640 160)"/></g>
+  <g fill="none" stroke="#63c7b8" stroke-width="1.5" stroke-linecap="square">
+    <path class="an-brk" d="M40 78 V40 H78" opacity=".5"/>
+    <path class="an-brk d2" d="M1202 78 V40 H1164" opacity=".5"/>
+    <path class="an-brk d3" d="M40 242 V280 H78" opacity=".5"/>
+    <path class="an-brk d4" d="M1202 242 V280 H1164" opacity=".5"/>
+  </g>
+  <rect class="an-rule" x="616" y="76" width="48" height="3" rx="1.5" fill="#e9a15a" opacity=".7"/>
+  <text x="640" y="152" text-anchor="middle" font-family="'Zilla Slab', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif" font-size="70" font-weight="600" fill="#dde5f0">Wake-Skills</text>
+  <text x="640" y="198" text-anchor="middle" font-size="22" fill="#8b98ab">个人 skill 仓库，一套 skill 适配 Mavis 与 ZCode</text>
+  <text x="640" y="234" text-anchor="middle" font-size="15" fill="#6f7c8f" letter-spacing="1.4">Mavis skill · ZCode plugin · Markdown · SVG</text>
+  <text x="640" y="284" text-anchor="middle" font-size="13" fill="#58657a">github.com/uwakeme/wake-skills</text>
+</svg>

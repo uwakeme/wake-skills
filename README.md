@@ -1,5 +1,9 @@
 # Wake-Skills
 
+<p align="center">
+  <img src="./assets/banner.svg" alt="Wake-Skills — 个人 skill 仓库，一套 skill 适配 Mavis 与 ZCode" width="100%">
+</p>
+
 个人 skill 仓库，一套 skill 同时适配两种格式：**Mavis skill**（每个 skill 一个目录，遵循 `mavis skill install <git-url>` 的标准约定）和 **ZCode 插件**（每个 skill 都带 `.claude-plugin/plugin.json` 清单，整个仓库可作为一个 ZCode 插件市场添加）。
 
 > **Mavis** 是 MiniMax 出品的 self-hosted multi-agent runtime。skill 是给 agent 加能力的最小单元——一个 `SKILL.md` 加几份 `references/*.md` 就够了。

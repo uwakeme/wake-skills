@@ -1,7 +1,7 @@
 {
   "name": "readme-craft",
-  "version": "0.2.1",
-  "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
+  "version": "0.3.0",
+  "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works). For web-app and tutorial projects it can also drive a browser to capture real UI screenshots and embed them in the README.",
   "author": { "name": "uwakeme" },
   "license": "MIT",
   "skills": "."

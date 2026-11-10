@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T09:04:14.930Z",
+  "generatedAt": "2026-11-10T09:06:10.485Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -43,7 +43,7 @@
     },
     {
       "name": "readme-craft",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "category": "documentation",
       "keywords": [
         "readme",
@@ -51,7 +51,7 @@
         "gfm",
         "skills"
       ],
-      "description": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。",
+      "description": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。web-app / tutorial 类项目还能自动驱动浏览器拍下界面的真实截图并嵌入 README。",
       "triggers": [
         "生成 README",
         "写一份 README",

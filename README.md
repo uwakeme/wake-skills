@@ -10,7 +10,7 @@
 
 ## 当前 skill
 
-### [readme-craft](./readme-craft) `v0.2.1`
+### [readme-craft](./readme-craft) `v0.3.0`
 
 生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。
 

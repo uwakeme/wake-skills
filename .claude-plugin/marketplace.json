@@ -33,12 +33,12 @@
     {
       "name": "readme-craft",
       "source": "./readme-craft",
-      "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
+      "description": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works). For web-app and tutorial projects it can also drive a browser to capture real UI screenshots and embed them in the README.",
       "description_i18n": {
-        "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works).",
-        "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。"
+        "en": "Generate a standardized, human-sounding, GFM-compliant README.md, using AGENTS.md / CLAUDE.md as extra context when present. Auto-generates a matching SVG banner for the top of the README whenever the environment can produce images (hand-written SVG always works). For web-app and tutorial projects it can also drive a browser to capture real UI screenshots and embed them in the README.",
+        "zh-CN": "生成标准化、语气人性化、符合 GFM 规范的 README.md，可读取 AGENTS.md / CLAUDE.md 作为补充上下文。环境具备生图条件时（手写 SVG 永远可行），自动生成配套的 README 顶部 SVG banner。web-app / tutorial 类项目还能自动驱动浏览器拍下界面的真实截图并嵌入 README。"
       },
-      "version": "0.2.1",
+      "version": "0.3.0",
       "author": {
         "name": "uwakeme"
       },

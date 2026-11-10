@@ -55,6 +55,8 @@
 2. `open_tab` 打开 `http://127.0.0.1:<port>/`
    - ⚠️ 当前标签页已有内容时 `navigate` 会报 `CURRENT_TAB_OCCUPIED` ⇒ **用 `open_tab`**
 3. 等页面稳定（SPA 要等水合，否则拍到加载态）
+   - ⚠️ **实测**：`open_tab` 后立刻截图，拍到的是**加载态**（"booting"），不是水合后的内容
+   - ⇒ 先 `wait`（参数是 **`timeout`**，不是 `duration`）再截图：`{"action":"wait","input":{"timeout":3000}}`
 4. `screenshot`（`scope: "viewport"`）⇒ 返回 `userDelivery.filePath`
    - ⚠️ 截图动作**只接受 `scope`**，传 `path` 会报错 ⇒ 产物落在运行时目录，**必须拷进项目**
 5. `Copy-Item -LiteralPath "<filePath>" -Destination "<project>/assets/screenshots/<name>.png"`
@@ -100,7 +102,7 @@
 | 内容含隐私（邮箱 / 真实姓名 / 内部地址） | **不截**，换页面或跳过 |
 | 浏览器工具不可用 | 降级到无头 Chrome |
 | 无头 Chrome 也不可用 | 跳过本步 |
-| 拍出来是空白 / 加载态 | 加等待重拍一次；仍不行则弃用该候选 |
+| 拍出来是空白 / 加载态 | 先 `wait` 再重拍一次；仍不行则弃用该候选（实测：浏览器立刻截图会拍到加载态） |
 | 用户中途说「不要截图了」 | 删掉已落盘的截图 + 移除 README 引用，不追问 |
 
 ---

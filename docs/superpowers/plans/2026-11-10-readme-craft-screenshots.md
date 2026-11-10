@@ -538,11 +538,13 @@ git commit -m "docs(readme-craft): README 描述补截图能力 + CHANGELOG 记 
 用 write 工具写 `D:\WorkSpace\projects\Wake-Skills\.tmp-e2e\server.js`（内容见下），再用 bash 后台启动 `node server.js`（端口 4399）：
 
 ```javascript
-const http = require("http");
+import http from "node:http";
 const html = `<html><body style="background:#141a24;color:#e9a15a;font:600 44px sans-serif;display:grid;place-items:center;height:100vh"><div id="app">booting</div><script>setTimeout(()=>{document.getElementById("app").textContent="E2E READY"},1200)</script></body></html>`;
 const s = http.createServer((q, r) => { r.setHeader("Content-Type", "text/html"); r.end(html); });
 s.listen(4399, () => console.log("ready on 4399"));
 ```
+
+> ⚠️ 本仓 `package.json` 有 `"type": "module"` ⇒ 临时脚本必须用 ESM（`import`），`require` 会报 `ReferenceError: require is not defined in ES module scope`。
 
 - [ ] **Step 2: 用无头 Chrome 拍移动端候选并确认水合完成**
 

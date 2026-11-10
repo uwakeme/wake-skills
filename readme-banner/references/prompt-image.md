@@ -41,6 +41,66 @@ Output: PNG, 1280x320, no watermark
 
 ---
 
+## 底图 + 动效层（形态组合 = 全动态 或 混合中的动态位）
+
+图像 AI 出的是**位图**，本身不会动。做法是：**AI 只出无文字底图，SVG 动效层叠在上面**。
+
+### 流程
+
+1. **AI 出底图**——用主模板，但必须确认输出**完全无文字**（见下方「底图专属约束」）。
+2. **准备动效层**——读 `references/motion.md`，按里面的元素分工与 keyframes 模板手写 SVG 装饰层。
+3. **合成**——把底图 PNG 以 base64 data URI 内嵌进 SVG 的 `<image>`，再叠动效层：
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" role="img">
+  <title>{{PROJECT_NAME}} — {{TAGLINE}}</title>
+  <desc>...</desc>
+  <style>
+    /* 动效层的 keyframes 与 animation 声明 */
+  </style>
+  <image href="data:image/png;base64,{{BASE64}}" x="0" y="0" width="1280" height="320"/>
+  <!-- 动效装饰层叠在底图之上 -->
+  <g class="an-brk">...</g>
+</svg>
+```
+
+4. **文字**——文字仍由 SVG `<text>` 写，**不要**让 AI 画进底图。
+5. **验证**——走 `references/motion.md` §7 的三关验证。
+
+### 底图专属约束
+
+追加到主模板的约束里：
+
+```text
+- NO text, NO letters, NO words, NO numbers anywhere in the image
+- Keep the LEFT or CENTER 55% of the canvas visually quiet — simple flat background only
+  (typography and the animated overlay layer will be added on top)
+- The image must be compressible: prefer flat large color areas over gradients and fine noise
+- Output PNG or JPEG, 1280x320
+```
+
+> 为什么强调「安静区域」：动效层与文字要叠在底图上，底图太花会盖住文字，也难以用 base64 压到小体积。
+
+### 体积口径
+
+base64 会让位图膨胀约 33%，且位图底图无法像矢量那样压到 6KB。
+
+⇒ **B 路径的动效产物走 <50KB 的宽松线**（与本文件既有的矢量化产物线一致），不要拿 6KB 去卡它。
+
+### 合成时的 base64 编码
+
+```bash
+# macOS / Linux
+base64 -i banner-bg.png | tr -d '\n' > banner-bg.b64
+
+# Windows PowerShell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes('banner-bg.png')) | Set-Content -Path banner-bg.b64 -Encoding ascii
+```
+
+把内容插进 `<image href="data:image/png;base64,...">`。
+
+---
+
 ## 各平台调参
 
 ### Midjourney v7
@@ -151,13 +211,28 @@ vtracer --input banner.png --output banner.svg \
    ```
 3. **删多余的 metadata**：vtracer 会带很多无用属性
 4. **添加 `<title>` 和 `<desc>`**：转出来的 SVG 默认没有
+5. **加 `role="img"`**
+
+> ⚠️ 若产物带动画，**不要用 svgo 默认配置**——它会静默丢掉 `@media (prefers-reduced-motion)` 和 `role="img"`。改用 `references/motion.md` §6 的安全配置。
 
 ---
 
 ## 验证清单
+
+静态产物：
 
 - [ ] PNG 在 dark/light 主题下都看得清
 - [ ] 没有 AI 写错的字（如果出现就是失败）
 - [ ] 没有变形 / 伪影
 - [ ] 矢量化后 SVG < 50KB（GitHub 渲染阈值）
 - [ ] 加完 `<title>` 和 `<desc>` 之后 GitHub 抓取正常
+
+底图 + 动效层产物额外要求：
+
+- [ ] 底图**完全没有文字**
+- [ ] 文字由 SVG `<text>` 写，位置不与底图亮区打架
+- [ ] base64 内嵌后总体积 < 50KB
+- [ ] 动效层元素在文字区域之外（不要压住文字）
+- [ ] 压缩后 `prefers-reduced-motion` 与 `role="img"` 仍在
+- [ ] 确定性定帧 + 像素差分，差分像素 > 0
+- [ ] 静态对照差分 = 0

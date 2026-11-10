@@ -160,6 +160,19 @@ docs/skills.json                  # build 产物，勿手改
 - 写 README / 对外文档前，主动过一遍 `humanizer` skill 去掉 AI 味。偏好平实、有第一视角、能有个人风格的写法；不要 AI 口号、装饰性 emoji、过度推销腔。
 - CHANGELOG 遵循 Keep a Changelog 1.1.0，用 `changelog-craft` 维护。
 
+## 视觉素材口径
+
+README 顶部 banner、主页配图按这套来，别每次重新发明：
+
+- **文字居中排版**，不左对齐。
+- **不要圆圈图案**——同心环、圆形装饰都不要。装饰母题用直线型元素：斜向光带、扫描线、斜纹、直角括号。
+- **周围加克制的动效**，动效放在文字周围，文字本身保持静止。
+- **配色沿用主页**：`docs/index.html` 的 `#141a24` 底 + 琥珀 `#e9a15a` + 青 `#63c7b8` + 衬线 display 字。banner 和主页得看起来是同一个产品。
+- 现有成品：`assets/banner.svg`（斜向柔光带 + 四角直角括号呼吸）。
+- 动效写进 SVG 里的 CSS（GitHub 只清洗 `<script>`，`<style>` 与 keyframes 会保留）。但**每个动画元素都要同时给静态基线**——GitHub 移动端、邮件这类不播动画的阅读器，看到的首帧也得是一张完整可用的 banner。另配 `@media (prefers-reduced-motion: reduce)` 降级。
+
+> 这条口味是**本仓库**的要求，换到别的项目别照搬。
+
 ## 其他
 
 - 仓库零运行时依赖：不引入 npm 包；主页是单文件 HTML，CSS/JS 内联，不用框架、不用构建步骤、不引 CDN。

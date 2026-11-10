@@ -16,7 +16,7 @@
 
 覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 4 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成）。
 
-触发词：`生成 README`、`写一份 README`、`补项目文档`、`readme 怎么写`、`我的项目需要一个 README`、`新项目初始化 README`、`完善项目说明`。
+触发词：`生成 README`、`写一份 README`、`补项目文档`、`readme 怎么写`、`我的项目需要一个 README`、`新项目初始化 README`、`完善项目说明`、`生成项目截图`、`README 里放界面截图`、`给项目拍截图`。
 
 ### [article-valuator](./article-valuator) `v0.1.0`
 

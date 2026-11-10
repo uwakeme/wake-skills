@@ -5,14 +5,18 @@ description: |
   骨架借鉴 Best-README-Template（顶图、shields、目录、back-to-top、底部引用区），
   表达借鉴 README（GFM 全特性：Alerts、diff、折叠、居中、徽章等），
   并可读取项目根目录的 AGENTS.md / CLAUDE.md 作为补充上下文。
+  web-app / tutorial 类项目还能自动拍下界面的真实截图（驱动浏览器实际渲染），
+  出多张候选交用户挑，选中的落进 assets/screenshots/ 并嵌入 README。
 
   触发："生成 README"、"写一份 README"、"补项目文档"、"readme 怎么写"、
-  "我的项目需要一个 README"、"新项目初始化 README"、"完善项目说明"。
+  "我的项目需要一个 README"、"新项目初始化 README"、"完善项目说明"、
+  "生成项目截图"、"README 里放界面截图"、"给项目拍截图"。
 
   不要在以下情况使用：
   - 需要同时维护 CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层 → 用 human-ai-docs（如已安装；没有就分开维护两个文件）
   - 需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）→ 用 readme（如已安装；没有就按 Rails 惯例手写）
   - 写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件 → 直接写，不需要 skill
+  - 只要一张 README 顶部 banner / hero 图 → 用 readme-banner（如已安装）
 risk: safe
 source: "self-authored"
 ---
@@ -47,6 +51,10 @@ source: "self-authored"
   - 用户明确说"增量"才做局部更新
 - **README banner**：默认自动生成，不问（能力检测与降级见 Step 4.5）
   - 用户说"不要 banner"、或现有 README 已引用可用的 banner / logo 图时跳过
+- **界面截图**：默认仅 web-app / tutorial 自动拍（web-app 的 Screenshots 章节、tutorial 的 Steps 配图）
+  - 用户说"不要截图" → 跳过
+  - 其它项目类型 → 跳过，不问
+  - 候选多张时交用户挑（见 Step 4.6）
 
 ---
 
@@ -207,6 +215,37 @@ options:
 
 > banner 属于锦上添花：任何一步失败（推不出项目名、SVG 超重、用户反悔）都直接跳过或降级，不阻塞 README 主流程。
 
+### Step 4.6 — 界面截图（仅 web-app / tutorial，失败不阻塞）
+
+**只在 Step 4 判定为 web-app 或 tutorial 时执行**；其它项目类型直接跳过，不问、不报告。
+
+> ⚠️ **与 Step 4.5 的默认行为相反，别记混**：Step 4.5（banner）**默认直接生成、不问用户**；Step 4.6（截图）**默认出多张候选、等用户挑**。
+
+**能力检测**（按顺序取第一条命中的）：
+
+| 优先级 | 路径 | 命中条件 | 视口 |
+| --- | --- | --- | --- |
+| 1 | **内置浏览器**（browser skill + `mcp_browser`） | 本 session 可用浏览器工具 | 固定 1280×720 |
+| 2 | **无头 Chrome**（`--headless=new --screenshot=`） | 系统装了 Chrome / Edge | **任意**（可 390×844） |
+| — | 跳过 | 上面都没有 | 无图 |
+
+**流程**（完整细则见 `references/screenshots.md`）：
+
+1. 探测 dev 命令（`scripts.dev` / `start` / `serve`）与常见端口（3000 / 5173 / 4200 / 8080 / 8000）
+   - 已有服务在跑 ⇒ 直接用，不重复启动，也**不要关掉它**
+2. 自己起 dev server（后台），等端口就绪（超时上限约 60 秒）
+   - 起不来 / 没有 dev 命令 ⇒ **跳过本步**，README 其余照写，报告里说明原因
+3. 拍候选 4 张：首页桌面 / 首页移动 / 关键子页面 ×1-2
+   - **移动端只能用无头 Chrome**（内置浏览器视口固定，改不了尺寸）
+   - SPA 要等水合完成再拍，否则拍到加载态
+4. 逐张交付给用户 + `ask_user` 让用户挑（保留哪几张 / 全要 / 全不要）
+   - 未选中的**不落进项目**
+5. 选中的拷进 `<project-root>/assets/screenshots/`，语义命名（`home-desktop.png` 等）
+6. **关掉本步自己起的 dev server**；本来就在跑的不要关
+7. 在 README 的 Screenshots 章节引用 `./assets/screenshots/<name>.png`
+
+**失败不阻塞**：截图拿不到是锦上添花没做成，README 其余部分照写，报告里说明原因即可——**不要因为截图失败就不写 README**。
+
 ### Step 5 — 撰写 README
 
 按 Best-README-Template 的标准化结构产出。每个 section 的具体写法见 `references/templates.md`；**每条 GFM 语法的规则、陷阱、最佳实践见 `references/gfm-syntax.md`**；**反 AI 味硬规则（破折号节制、标题禁 emoji、Features 不用 inline-header 列表、AI 高频词替换表）见 `references/humanizer-rules.md`**。三份文件按需回查，本节只规定**通用规则**和**顺序**。
@@ -215,6 +254,9 @@ options:
 
 1. **Banner（如有）+ Title + Tagline**（居中，HTML `<div align="center">` 包裹）
    - Step 4.5 生成了 banner：`<img>` 放最顶，`# 项目名` 的 H1 **仍要保留**——SVG 内文字读屏读不到，社交预览和目录锚点也靠这个标题；没有 banner 时按 logo / 纯标题原样
+   - **Screenshots**（仅 Step 4.6 拍到图时）：Step 4.6 拍到了图才写这一节；没拍到就整节跳过，**不要留占位符**
+     - 单张用居中 `<div align="center">` + `<img width="100%">`；多张用表格对齐排版
+     - alt 写清是哪一页，不要写 "screenshot" 这种空话
 2. **Shields 徽章行**（build / version / license / stars，按实际能填的填，不可获得的不要写）
 3. **Table of Contents**（`<details>` 折叠；全文 < 200 行可省略，与 Step 6 自检口径一致）
 4. **About / 项目简介**（2-3 句，"这是啥、给谁用、解决啥问题"）
@@ -330,6 +372,8 @@ options:
 - [ ] 没有任何空 section（"## License" 后面必须有内容）
 - [ ] 中英混排时两边都通顺
 - [ ] 有 banner 时：文件真实存在于 `assets/`、README 引用路径正确、`<title>` 不是空话
+- [ ] 有截图时：`assets/screenshots/` 下的文件真实存在、README 引用路径与实际文件名完全一致（大小写也要一致）
+- [ ] 有截图时：没有空白图 / 加载态截图混进去（拍到加载态就重拍或弃用）
 
 ### Step 7 — 写入并报告
 
@@ -338,7 +382,7 @@ options:
 1. **第一个语言**（默认是 English，见 Step 1.5；用户明确指定唯一语言时按用户要求）→ 写入 `<project-root>/README.md`
 2. **后续每个语言** → 写入 `<project-root>/README.<bcp47>.md`（如 `README.zh-CN.md`、`README.ja.md`）
 3. 已有同名文件 → 先备份为 `<file>.bak` 再覆盖；若 `.bak` 已存在，改用带时间戳的 `<file>.<YYYYMMDD-HHMMSS>.bak`，**绝不覆盖旧备份**（更早的备份才是用户的原始文件）
-4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`；生成过 banner 追加：`banner: assets/banner.svg（X KB，路径 A）`；Step 1.6 创建过 tag 时追加一句：`已创建本地 tag v1.2.3（未推送，推送请执行 git push origin v1.2.3）`
+4. 输出报告：`已生成 N 份 README（语言: en, zh-CN, ja），主 README: README.md（M 行）`；生成过 banner 追加：`banner: assets/banner.svg（X KB，路径 A）`；Step 4.6 产出了截图时追加：`截图：assets/screenshots/ 下 N 张（<文件名列表>）`；Step 1.6 创建过 tag 时追加一句：`已创建本地 tag v1.2.3（未推送，推送请执行 git push origin v1.2.3）`
 
 **翻译原则**（多语言版本必须遵守，详见 `references/i18n.md`）：
 - ✅ 翻译：所有自然语言段落、bullet、Alert 文字、表格描述、代码注释
@@ -354,6 +398,7 @@ options:
 - 文档长度 200–600 行/语言（视项目复杂度）
 - 包含 Best-README-Template 风格：徽章、TOC、back-to-top（只在大节末尾，不逐节堆）、底部引用区
 - banner：默认生成 `assets/banner.svg` 并在主 README 顶部引用；跳过时在报告里说明原因（无名字来源 / 用户拒绝 / 已有现成图）
+- 截图（仅 web-app / tutorial）：默认拍候选交用户挑，选中的落 `assets/screenshots/`；拍不到就跳过，不阻塞 README
 - 每个 section 都有实际内容；不允许出现"待补充"、"TBD"、占位用户名
 - 遵循 GFM 规范（表格、代码块、Alerts、折叠、diff 都能正确渲染）
 - 多语言版本结构对齐（章节顺序、section 标题一致），便于读者对照
@@ -382,6 +427,13 @@ options:
 | 现有 README 已有 banner / logo 图 | 沿用现成的，不生成也不覆盖（见 Step 4.5） |
 | B 路径生图失败 / 产物质量差 | 退回 A 路径手写 SVG，告诉用户原因 |
 | 用户中途说"不要 banner 了" | 删掉 banner 文件 + 移除 README 里的引用，不追问 |
+| 项目类型不是 web-app / tutorial | 跳过截图，不报告，不影响 README |
+| 没有 dev 命令 / dev server 起不来 | 跳过截图，README 其余照写，报告说明原因 |
+| 截图拍到加载态 / 空白 | 加等待重拍一次；仍不行则弃用该候选 |
+| 截图内容含邮箱 / 真实姓名 / 内部地址 | 不落盘，换页面或跳过 |
+| 页面要求登录 / 有验证码 | 只截公开部分，不代填凭据、不猜验证码 |
+| 浏览器工具不可用 | 降级到无头 Chrome；也没有则跳过本步 |
+| 用户中途说"不要截图了" | 删掉已落盘的截图 + 移除 README 引用，不追问 |
 
 ---
 
@@ -425,3 +477,4 @@ options:
 ## Windows (win32) platform notes
 
 流程型 skill：扫描文件、读 manifest、写 README 全用 Read / Write / Glob / Grep 工具。shell 仅用于 git：Step 1 的只读检测（`rev-parse` / `describe` / `remote`）和 Step 1.6 经用户确认的 `git tag` 创建——命令本身跨平台，Git Bash / PowerShell 通用，无需适配。banner 的 A 路径（手写 SVG）同样只用 Write 写文本文件，无平台差异；可选的 `npx svgo` 压缩和 B 路径的生图工具属于外部能力，不可用时按 Step 4.5 降级跳过。
+Step 4.6 的截图步骤会用到 shell（后台起 dev server、无头 Chrome 截图、拷文件），跨平台命令一致；浏览器截图动作本身不用 shell。

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T16:57:40.101Z",
+  "generatedAt": "2026-11-10T09:04:14.930Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -59,19 +59,24 @@
         "readme 怎么写",
         "我的项目需要一个 README",
         "新项目初始化 README",
-        "完善项目说明"
+        "完善项目说明",
+        "生成项目截图",
+        "README 里放界面截图",
+        "给项目拍截图"
       ],
       "triggerSource": "skill-md",
       "antiTriggers": [
         "需要同时维护 CLAUDE.md（AI 上下文）+ README.md（人类阅读）双层",
         "需要 Rails 命令级细节（bin/dev、bin/rails、Kamal 部署）",
-        "写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件"
+        "写的是 CHANGELOG / CONTRIBUTING / LICENSE 等单文件",
+        "只要一张 README 顶部 banner / hero 图"
       ],
       "references": [
         "banner.md",
         "gfm-syntax.md",
         "humanizer-rules.md",
         "i18n.md",
+        "screenshots.md",
         "templates.md"
       ],
       "url": "https://github.com/uwakeme/wake-skills/tree/main/readme-craft",

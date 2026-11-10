@@ -188,7 +188,7 @@
 ```markdown
 <div align="center">
 
-![主界面](images/screenshot-home.png)
+![主界面](assets/screenshots/home-desktop.png)
 
 </div>
 ```

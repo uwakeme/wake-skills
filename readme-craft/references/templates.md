@@ -174,7 +174,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 [license-url]: https://github.com/<user>/<repo>/blob/master/LICENSE.txt
 [version-shield]: https://img.shields.io/github/v/release/<user>/<repo>.svg?style=for-the-badge
 [version-url]: https://github.com/<user>/<repo>/releases
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: assets/screenshots/home-desktop.png
 [Node.js]: https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white
 [Node-url]: https://nodejs.org/
 [TypeScript.ts]: https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
@@ -243,7 +243,7 @@ Project Link: [https://github.com/<user>/<repo>](https://github.com/<user>/<repo
 
 | Home | Dashboard | Mobile |
 | --- | --- | --- |
-| ![home](images/screenshot-home.png) | ![dashboard](images/screenshot-dashboard.png) | ![mobile](images/screenshot-mobile.png) |
+| ![home](assets/screenshots/home-desktop.png) | ![dashboard](assets/screenshots/dashboard.png) | ![mobile](assets/screenshots/home-mobile.png) |
 
 > 用表格对齐排版，比单独放更整齐。
 

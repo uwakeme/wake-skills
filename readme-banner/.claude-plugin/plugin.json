@@ -1,7 +1,7 @@
 {
   "name": "readme-banner",
-  "version": "0.1.0",
-  "description": "为 GitHub README 生成 header banner / hero 图。两种生成路径：LLM 直接写 SVG，或图像 AI 出图再矢量化。",
+  "version": "0.2.0",
+  "description": "为 GitHub README 生成 header banner / hero 图。三种生成路径：LLM 直接写 SVG、图像 AI 出图再矢量化、图像 AI 底图叠加 SVG 动效层。产物分静态与带 CSS 动画两种形态，生成前先问清数量与形态。",
   "author": { "name": "uwakeme" },
   "license": "MIT",
   "skills": "."

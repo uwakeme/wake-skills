@@ -88,7 +88,10 @@ test('references 来自目录实扫而非正文解析', () => {
     'banner.md', 'gfm-syntax.md', 'humanizer-rules.md', 'i18n.md', 'screenshots.md', 'templates.md',
   ]);
   const banner = records.find((x) => x.name === 'readme-banner');
-  assert.equal(banner.references.length, 3);
+  // 列出文件名而非只比数量：新增 reference 时能从 diff 里直接看出加了什么
+  assert.deepEqual(banner.references, [
+    'design-spec.md', 'motion.md', 'prompt-image.md', 'prompt-svg.md',
+  ]);
 });
 
 test('buildSkillsJson 的结构含 count / categories 且 skills 顺序与 records 一致', () => {

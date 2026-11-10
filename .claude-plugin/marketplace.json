@@ -53,12 +53,12 @@
     {
       "name": "readme-banner",
       "source": "./readme-banner",
-      "description": "Generate GitHub README header banner. Two paths: let an LLM write clean SVG directly (preferred, small and editable), or use image AI (Midjourney / DALL-E / SDXL) and vectorize the output. Also supports running both and comparing 3 candidates from each.",
+      "description": "Generate GitHub README header banner. Three paths: let an LLM write clean SVG directly (preferred, small and editable), use image AI (Midjourney / DALL-E / SDXL) and vectorize the output, or layer an SVG animation over an AI-generated base image. Output can be static or carry CSS animation; the skill asks up front how many variants you want and which mix of static and animated.",
       "description_i18n": {
         "en": "Generate GitHub README header banner. Two paths: let an LLM write clean SVG directly (preferred, small and editable), or use image AI (Midjourney / DALL-E / SDXL) and vectorize the output. Also supports running both and comparing 3 candidates from each.",
-        "zh-CN": "为 GitHub README 生成顶部 banner / hero 图，支持两种路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。同时支持两种都跑、各 3 张候选对比。"
+        "zh-CN": "为 GitHub README 生成顶部 banner / hero 图，支持三条路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑）、图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化、图像 AI 出底图再叠 SVG 动效层。产物分静态与带 CSS 动画两种形态，生成前先问清要几张、静态动态怎么混。"
       },
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "uwakeme"
       },
@@ -67,7 +67,8 @@
         "readme",
         "banner",
         "svg",
-        "design"
+        "design",
+        "animation"
       ]
     },
     {

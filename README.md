@@ -26,9 +26,9 @@ web-app / tutorial 类项目还会自动驱动浏览器拍下界面的真实截�
 
 触发词：`帮我看看这篇文章值不值得读/学`、`评估一下这个链接`、`这个文章有价值吗`、`这篇文章值得花时间吗`、`帮我分析一下这篇的含金量`、`看看要不要收藏这篇`。
 
-### [readme-banner](./readme-banner) `v0.1.0`
+### [readme-banner](./readme-banner) `v0.2.0`
 
-为 GitHub README 顶部生成 hero / banner 图。两种生成路径可选：让 LLM 直接写干净的 SVG 代码（首选，体积小、可二次编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。也支持两种都跑、各出 3 张候选对比。带 3 份 reference：`prompt-svg.md` / `prompt-image.md` / `design-spec.md`。
+为 GitHub README 顶部生成 hero / banner 图。三条生成路径：让 LLM 直接写干净的 SVG 代码（首选，体积小、可二次编辑）、用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化、图像 AI 出底图再叠 SVG 动效层。产物分静态与带 CSS 动画两种形态——动效走 SVG 内嵌 `@keyframes`，GitHub README 会真的播，不播的首帧也仍是完整可用的图。生成前用一次问卷问清「生成几张」和「全静态 / 全动态 / 混合」，混合时按对位交替分配候选。带 4 份 reference：`prompt-svg.md` / `prompt-image.md` / `design-spec.md` / `motion.md`（动效专项：keyframes 模板、svgo 安全配置、无头验证方法）。
 
 触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`、`生成动态 banner`、`会动的 banner`、`带动画的 README 顶部图`。
 

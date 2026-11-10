@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T09:17:06.326Z",
+  "generatedAt": "2026-11-10T09:18:07.728Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -84,15 +84,16 @@
     },
     {
       "name": "readme-banner",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "design",
       "keywords": [
         "readme",
         "banner",
         "svg",
-        "design"
+        "design",
+        "animation"
       ],
-      "description": "为 GitHub README 生成顶部 banner / hero 图，支持两种路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。同时支持两种都跑、各 3 张候选对比。",
+      "description": "为 GitHub README 生成顶部 banner / hero 图，支持三条路径：LLM 直接写干净 SVG 代码（首选，轻量可编辑）、图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化、图像 AI 出底图再叠 SVG 动效层。产物分静态与带 CSS 动画两种形态，生成前先问清要几张、静态动态怎么混。",
       "triggers": [
         "生成 README banner",
         "做个项目 banner",

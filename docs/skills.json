@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T09:06:10.485Z",
+  "generatedAt": "2026-11-10T09:17:06.326Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -98,7 +98,10 @@
         "做个项目 banner",
         "README 顶部图",
         "SVG banner",
-        "hero 图"
+        "hero 图",
+        "生成动态 banner",
+        "会动的 banner",
+        "带动画的 README 顶部图"
       ],
       "triggerSource": "skill-md",
       "antiTriggers": [
@@ -108,6 +111,7 @@
       ],
       "references": [
         "design-spec.md",
+        "motion.md",
         "prompt-image.md",
         "prompt-svg.md"
       ],

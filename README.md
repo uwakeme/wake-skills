@@ -30,7 +30,7 @@ web-app / tutorial 类项目还会自动驱动浏览器拍下界面的真实截�
 
 为 GitHub README 顶部生成 hero / banner 图。两种生成路径可选：让 LLM 直接写干净的 SVG 代码（首选，体积小、可二次编辑），或用图像 AI（Midjourney / DALL-E / SDXL）出位图再矢量化。也支持两种都跑、各出 3 张候选对比。带 3 份 reference：`prompt-svg.md` / `prompt-image.md` / `design-spec.md`。
 
-触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`。
+触发词：`生成 README banner`、`做个项目 banner`、`README 顶部图`、`SVG banner`、`hero 图`、`生成动态 banner`、`会动的 banner`、`带动画的 README 顶部图`。
 
 ### [changelog-craft](./changelog-craft) `v0.1.0`
 

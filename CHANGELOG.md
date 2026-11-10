@@ -13,8 +13,8 @@
 - 新增 **homepage-craft** 技能：扫描仓库产出单文件 HTML 主页（`docs/index.html`，可直接发布到 GitHub Pages），自动编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign），生成后可经用户确认自动部署（commit + push + gh 开启 Pages）（[bb111e6]）
 - homepage-craft 首次 dogfood：为本仓库生成主页 `docs/index.html`（墨蓝夜编辑器风、frontmatter 卡签名元素，桌面 + 手机双宽度自检通过）（[7c9b33e]）
 - 新增 **review-brief** 技能：改动收尾时生成自包含的审查简报——原始需求与验收标准、变更范围（未提交变更或提交区间）、按需求符合性 / 潜在 bug / 影响面拆好的审查要点，交给另一个没有对话上下文的 agent 独立复查（[086c678]）
-- README 顶部新增手写 SVG banner（`assets/banner.svg`）：文字居中、去掉圆圈图案，改用两条斜向柔光带缓慢漂移 + 四角直角括号错峰呼吸；配色沿用主页（`#141a24` 底 + 琥珀 `#e9a15a` + 青 `#63c7b8`）。动画写在 SVG 内的 CSS 里（GitHub 只清洗 `<script>`，保留 `<style>` 与 keyframes），同时给不播放动画的阅读器准备完整静态首帧，并按 `prefers-reduced-motion` 降级
-- AGENTS.md 补上**视觉素材口径**：README 顶部 banner 文字居中、不用圆圈图案、周围加克制的动效，配色沿用主页设计系统；并写明这条口味**只对本仓库成立**，别照搬到别的项目
+- README 顶部新增手写 SVG banner（`assets/banner.svg`）：文字居中、去掉圆圈图案，改用两条斜向柔光带缓慢漂移 + 四角直角括号错峰呼吸；配色沿用主页（`#141a24` 底 + 琥珀 `#e9a15a` + 青 `#63c7b8`）。动画写在 SVG 内的 CSS 里（GitHub 只清洗 `<script>`，保留 `<style>` 与 keyframes），同时给不播放动画的阅读器准备完整静态首帧，并按 `prefers-reduced-motion` 降级（[5b16411]）
+- AGENTS.md 补上**视觉素材口径**：README 顶部 banner 文字居中、不用圆圈图案、周围加克制的动效，配色沿用主页设计系统；并写明这条口味**只对本仓库成立**，别照搬到别的项目（[49ea9ed]）
 - **readme-craft 0.3.0**：新增 Step 4.6「界面截图」——仅 web-app / tutorial 触发，agent 自己拉起 dev server、驱动浏览器渲染真实界面，出多张候选交用户挑，选中的落进 `assets/screenshots/` 并嵌入 README 的 Screenshots 章节；内置浏览器视口固定（移动端候选走无头 Chrome），截图失败不阻塞 README 主流程（[1ff6a5c]）
 
 ### Changed

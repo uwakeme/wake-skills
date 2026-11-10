@@ -254,9 +254,6 @@ options:
 
 1. **Banner（如有）+ Title + Tagline**（居中，HTML `<div align="center">` 包裹）
    - Step 4.5 生成了 banner：`<img>` 放最顶，`# 项目名` 的 H1 **仍要保留**——SVG 内文字读屏读不到，社交预览和目录锚点也靠这个标题；没有 banner 时按 logo / 纯标题原样
-   - **Screenshots**（仅 Step 4.6 拍到图时）：Step 4.6 拍到了图才写这一节；没拍到就整节跳过，**不要留占位符**
-     - 单张用居中 `<div align="center">` + `<img width="100%">`；多张用表格对齐排版
-     - alt 写清是哪一页，不要写 "screenshot" 这种空话
 2. **Shields 徽章行**（build / version / license / stars，按实际能填的填，不可获得的不要写）
 3. **Table of Contents**（`<details>` 折叠；全文 < 200 行可省略，与 Step 6 自检口径一致）
 4. **About / 项目简介**（2-3 句，"这是啥、给谁用、解决啥问题"）
@@ -268,6 +265,10 @@ options:
 **按项目类型**从以下池子里挑（不要全要，按需裁剪）：
 
 - Features / Screenshots / Demo / Built With / Tech Stack
+  - **Screenshots**（仅 Step 4.6 拍到图时）：放在 About 之后、Features 之前
+    - 拍到了图才写这一节；没拍到就整节跳过，**不要留占位符**
+    - 单张用居中 `<div align="center">` + `<img width="100%">`；多张用表格对齐排版
+    - alt 写清是哪一页，不要写 "screenshot" 这种空话
 - Architecture（复杂项目才写）
 - API / Commands / Endpoints（按类型）
 - Configuration / Environment Variables（用表格）

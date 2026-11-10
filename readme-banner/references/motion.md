@@ -184,6 +184,18 @@ grep -c 'role="img"' banner.min.svg               # 必须 ≥1
 
 > `svgo.config.mjs` 是**临时配置文件**，用完删掉，不要提交进仓库。
 
+> **npx 不可用时**：`npx svgo` 在某些环境会报 "could not determine executable to run"
+> （npm 缓存或 registry 解析问题）。此时在临时目录本地装一份即可：
+>
+> ```bash
+> mkdir -p /tmp/svgo-work && cd /tmp/svgo-work
+> npm init -y && npm install --no-audit --no-fund svgo@4
+> ./node_modules/.bin/svgo --config /path/to/svgo.config.mjs banner.svg -o banner.min.svg
+> ```
+>
+> 注意：**不要在项目根目录跑 `npm install`**——npm 会向上找到仓库的 `package.json`
+> 并把依赖写进去，污染仓库。装在临时目录里。
+
 ---
 
 ## 7. 验证：动效到底有没有在动
@@ -233,6 +245,23 @@ grep -c 'role="img"' banner.min.svg               # 必须 ≥1
 > ```
 >
 > 用 `[IO.File]::WriteAllText` + `UTF8Encoding($false)` 而不是 `Set-Content -Encoding UTF8`——后者在 PS 5.1 会写 BOM，SVG 带 BOM 可能影响解析。
+
+> ⚠️ **更隐蔽的一个坑：读取时也要显式指定 UTF-8。**
+> PS 5.1 的 `Get-Content -Raw` 默认按 ANSI 解码，中文会变成乱码，
+> 而且**乱码字节会把结尾的 `<` 吞掉**——`</desc>` 变成 `?/desc>`，
+> SVG 直接变成 XML 解析错误，浏览器报 "Unexpected closing tag"。
+> 症状：压缩后的文件用编辑器打开中文正常，但无头浏览器截出来是一张报错页。
+>
+> ```powershell
+> # 错：默认 ANSI 解码 → 中文变乱码 → </desc> 被破坏
+> $t = Get-Content 'banner.min.svg' -Raw
+>
+> # 对：显式 UTF-8
+> $t = Get-Content 'banner.min.svg' -Raw -Encoding UTF8
+> ```
+>
+> **排查口诀**：浏览器报 XML 解析错误时，先用 `-Encoding UTF8` 重读一遍文件——
+> svgo 本身几乎不会破坏 XML，多半是读取环节的编码问题。
 
 分别以 `animation-delay: 0s` 和 `animation-delay: -3s` 生成两份，各截一帧。
 

@@ -95,17 +95,22 @@ test('references 来自目录实扫而非正文解析', () => {
 });
 
 test('buildSkillsJson 的结构含 count / categories 且 skills 顺序与 records 一致', () => {
-  const { records } = buildSkillRecords(repoRoot);
-  const json = buildSkillsJson(records);
+  const { records, repo } = buildSkillRecords(repoRoot);
+  const json = buildSkillsJson(records, repo);
   assert.equal(json.count, marketplaceCount());
   assert.deepEqual(json.categories, ['design', 'documentation', 'productivity']);
   assert.deepEqual(json.skills.map((s) => s.name), records.map((s) => s.name));
   assert.ok(json.repo.user && json.repo.repo, 'repo 信息应可用于拼安装链接');
 });
 
+test('buildSkillsJson: repo 用传入的真实 remote/branch，而不是写死的 fallback', () => {
+  const repo = { user: 'fork-user', repo: 'fork-repo', branch: 'dev' };
+  assert.deepEqual(buildSkillsJson([], repo).repo, repo);
+});
+
 test('url / installCmd 指向发布分支，而不是本地检出的特性分支', () => {
-  const { records } = buildSkillRecords(repoRoot);
-  const json = buildSkillsJson(records);
+  const { records, repo } = buildSkillRecords(repoRoot);
+  const json = buildSkillsJson(records, repo);
   const prefix = `https://github.com/${json.repo.user}/${json.repo.repo}/tree/${json.repo.branch}/`;
   for (const r of records) {
     assert.ok(r.url.startsWith(prefix), `${r.name} 应指向发布分支 ${json.repo.branch}，实际 ${r.url}`);
@@ -340,14 +345,33 @@ test('injectHeroCount: 目标文本含 $& / $1 / $` / $\' 时不被当替换模�
   assert.equal(injectHeroCount(out.html, 6).html, out.html, '重复注入必须幂等');
 });
 
-test('injectHeroCount: 真实 index.html 按当前 count 注入后零改动（仓库无首屏漂移）', () => {
-  const { records } = buildSkillRecords(repoRoot);
+test('injectHeroCount: 给定 version 时注入 hero-version 与 fm-version', () => {
+  const html = '<span id="hero-skill-count">5 skills</span><span class="fm-num" id="fm-skill-count">5</span>'
+    + '<span id="hero-version">v0.0.0</span><span class="fm-num" id="fm-version">0.0.0</span>';
+  const out = injectHeroCount(html, 6, '9.9.9');
+  assert.equal(out.ok, true);
+  assert.ok(out.html.includes('<span id="hero-version">v9.9.9</span>'));
+  assert.ok(out.html.includes('<span class="fm-num" id="fm-version">9.9.9</span>'));
+  assert.equal(injectHeroCount(out.html, 6, '9.9.9').html, out.html, '重复注入必须幂等');
+});
+
+test('injectHeroCount: 不给 version 时不碰版本号注入点', () => {
+  const html = '<span id="hero-version">v0.0.0</span><span id="fm-version">0.0.0</span>';
+  const out = injectHeroCount(html, 6);
+  assert.equal(out.html, html, '无 version 参数时版本号原样保留');
+  assert.deepEqual(out.missing, ['hero-skill-count', 'fm-skill-count']);
+});
+
+test('injectHeroCount: 真实 index.html 按当前 count 与 version 注入后零改动（仓库无首屏漂移）', () => {
+  const { records, version } = buildSkillRecords(repoRoot);
   const html = readFileSync(HOMEPAGE_PATH, 'utf8');
-  const out = injectHeroCount(html, records.length);
-  assert.deepEqual(out.missing, [], '真实主页必须同时含 #hero-skill-count 与 #fm-skill-count');
-  assert.equal(out.html, html, '提交进仓库的主页应已是最新数字，跑 build 不应再改它');
+  const out = injectHeroCount(html, records.length, version);
+  assert.deepEqual(out.missing, [], '真实主页必须含 count 与 version 共四个注入点');
+  assert.equal(out.html, html, '提交进仓库的主页应已是最新数字与版本，跑 build 不应再改它');
   assert.ok(new RegExp(`<span id="hero-skill-count">${records.length} skills</span>`).test(html));
   assert.ok(new RegExp(`<span class="fm-num" id="fm-skill-count">${records.length}</span>`).test(html));
+  assert.ok(html.includes(`<span id="hero-version">v${version}</span>`), 'eyebrow 版本应来自 marketplace');
+  assert.ok(html.includes(`<span class="fm-num" id="fm-version">${version}</span>`), 'fm-card 版本应来自 marketplace');
 });
 
 test('injectHeroCount: 无关文案里含 $& 时也不会被当替换模式复制', () => {

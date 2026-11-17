@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import {
   parseFrontmatter, extractTriggersFromSkillMd,
-  extractAntiTriggers, extractTriggersFromReadme, listReferences,
+  extractAntiTriggers, extractTriggersFromReadme, listReferences, escapeRegExp,
 } from './lib/extract.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -42,6 +42,7 @@ function publishBranch() {
 export function buildSkillRecords(repoRoot) {
   const warnings = [];
   const marketplace = JSON.parse(readFileSync(join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'));
+  const version = marketplace.version ?? '';
   const readme = existsSync(join(repoRoot, 'README.md'))
     ? readFileSync(join(repoRoot, 'README.md'), 'utf8') : '';
   const { user, repo } = parseGitHubUrl(gitOutput(['remote', 'get-url', 'origin']));
@@ -98,23 +99,18 @@ export function buildSkillRecords(repoRoot) {
       warnings.push(`孤儿 skill：${d.name}/ 有 SKILL.md 但未登记到 marketplace.json，主页不会显示它`);
     }
   }
-  return { records, warnings };
+  return { records, warnings, repo: { user, repo, branch }, version };
 }
 
-/** 组装 skills.json 载荷。 */
-export function buildSkillsJson(records) {
+/** 组装 skills.json 载荷。repo 用真实解析的 remote/branch，与 records 的链接同源。 */
+export function buildSkillsJson(records, repo) {
   return {
     generatedAt: new Date().toISOString(),
-    repo: { ...FALLBACK_REPO },
+    repo: { ...repo },
     count: records.length,
     categories: [...new Set(records.map((r) => r.category).filter(Boolean))].sort(),
     skills: records,
   };
-}
-
-/** marketplace.json 是手工可编辑的，skill 名直接拼进正则前必须转义，否则 `a|b` 会变成或分支。 */
-function escapeRegExp(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -130,7 +126,7 @@ export function injectMeta(html, count) {
 }
 
 /**
- * 首屏两处技能数量：eyebrow 的 #hero-skill-count 与 fm-card 的 #fm-skill-count。
+ * 首屏技能数量与集合版本号：#hero-skill-count / #fm-skill-count / #hero-version / #fm-version。
  * 按 id 定点定位，不用行号也不用无锚点的大范围正则：
  *  - 行号会随骨架里的任何一次插入整体漂移；
  *  - 全文匹配「数字」会顺手动到 version、分类数这些手写文案。
@@ -138,11 +134,15 @@ export function injectMeta(html, count) {
  * 函数式替换：目标文本里出现 $& / $1 / $` 时，字符串替换会把整段匹配复制回来。
  * 定位不到就原样返回并把 id 记进 missing，交给 main 打告警——不抛异常、不改文件。
  */
-export function injectHeroCount(html, count) {
+export function injectHeroCount(html, count, version) {
   const slots = [
     ['hero-skill-count', `${count} skills`],
     ['fm-skill-count', String(count)],
   ];
+  // 集合版本号以 marketplace.json 顶层 version 为唯一来源；没给就只注入计数。
+  if (version) {
+    slots.push(['hero-version', `v${version}`], ['fm-version', version]);
+  }
   const missing = [];
   let out = html;
   for (const [id, text] of slots) {
@@ -277,13 +277,13 @@ export function applyTargets(targets, { check = false } = {}) {
 
 function main() {
   const check = process.argv.includes('--check');
-  const { records, warnings } = buildSkillRecords(REPO);
-  const payload = buildSkillsJson(records);
+  const { records, warnings, repo, version } = buildSkillRecords(REPO);
+  const payload = buildSkillsJson(records, repo);
   const jsonText = `${JSON.stringify(payload, null, 2)}\n`;
   const html = readFileSync(HOMEPAGE, 'utf8');
   const injected = injectMeta(html, records.length);
   if (!injected.ok) warnings.push('index.html 缺少 <!-- auto:meta:count:begin/end --> 锚点，meta 数字未更新');
-  const counted = injectHeroCount(injected.html, records.length);
+  const counted = injectHeroCount(injected.html, records.length, version);
   for (const id of counted.missing) warnings.push(`index.html 找不到 id="${id}"，首屏技能数量未更新`);
   const inlined = injectInlineData(counted.html, payload);
   if (!inlined.ok) warnings.push('index.html 缺少 <script type="application/json" id="skill-data">，双击打开将看不到技能列表');

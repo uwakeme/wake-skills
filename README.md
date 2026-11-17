@@ -38,11 +38,11 @@ web-app / tutorial 类项目还会自动驱动浏览器拍下界面的真实截�
 
 触发词：`生成 CHANGELOG`、`写 changelog`、`更新更新日志`、`这个版本改了啥`、`整理 release notes`、`提交`、`commit`、`帮我提交这些改动`。
 
-### [homepage-craft](./homepage-craft) `v0.2.0`
+### [homepage-craft](./homepage-craft) `v0.3.0`
 
-为开源项目生成优美的主页：扫描仓库（manifest、README、截图、git 元信息），产出单文件 HTML landing page（默认 `docs/index.html`，推上 GitHub Pages 即发布）。内容 100% 来自仓库真实素材，不编造数字和占位图。核心特性是**编排已安装的设计类 skill**——探测到 `ui-ux-pro-max` 就用它出设计系统、`frontend-design` / `superdesign` 管实现美感，一个都没装时退回内置设计基线（三风格方向 + 反 AI-slop 清单）。生成后可经用户确认**自动部署到 GitHub Pages**（commit + push + `gh` 开启 Pages；gh 不可用时降级为只推代码并给出手动开启步骤）；**发布策略由用户决定**：随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作，不碰工作区）。带 2 份 reference：`page-anatomy.md` 管章节结构与自检、`design-baseline.md` 管兜底美学。
+为开源项目生成优美的主页：扫描仓库（manifest、README、截图、git 元信息），产出单文件 HTML landing page（默认 `docs/index.html`，推上 GitHub Pages 即发布）。内容 100% 来自仓库真实素材，不编造数字和占位图。核心特性是**编排已安装的设计类 skill**——探测到 `ui-ux-pro-max` 就用它出设计系统、`frontend-design` / `superdesign` 管实现美感，一个都没装时退回内置设计基线（三风格方向 + 反 AI-slop 清单）。生成后可经用户确认**自动部署到 GitHub Pages**（commit + push + `gh` 开启 Pages；gh 不可用时降级为只推代码并给出手动开启步骤）；**发布策略由用户决定**：随 main 分支 + `/docs` 同提交同步，或把发布拷贝隔离到独立 `gh-pages` 分支（git worktree 操作，不碰工作区）。上线之后还能**把地址回填进项目**：README 挂一行链接，仓库 Website 字段填上主页地址，两项分开让用户自己勾选。README 那行带一个不可见标记，以后重跑是原地改地址，不会再插第二行。带 2 份 reference：`page-anatomy.md` 管章节结构与自检、`design-baseline.md` 管兜底美学。
 
-触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`project homepage`、`把 README 变成网页`、`开源项目展示页`、`给我的库做个介绍页`、`把主页部署上线`。
+触发词：`给项目生成主页`、`做一个 landing page`、`生成项目官网`、`GitHub Pages 首页`、`project homepage`、`把 README 变成网页`、`开源项目展示页`、`给我的库做个介绍页`、`把主页部署上线`、`主页地址加到 README`、`设置仓库 Website`。
 
 ### [review-brief](./review-brief) `v0.2.2`
 

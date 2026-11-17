@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **homepage-craft 0.3.0**：新增 Step 8「回填主页地址」——部署上线后可选把公开地址回填进项目：① README 挂一行链接（位置优先挂在 H1 下方的徽章行，带 `<!-- homepage-craft:homepage -->` 不可见标记，重跑原地更新不重复插）；② 设置仓库 Website 字段（`gh repo edit --homepage`，写完回读校验）。两项分开让用户勾选，仓库 Website 字段已有别的地址时停下问用户而不是覆盖；公开地址改以 Pages API 的 `html_url` 为准——账号级或仓库级自定义域名下拼 `https://<user>.github.io/<repo>/` 是打不开的
+
 ## [0.3.0] - 2026-11-17
 
 ### Added

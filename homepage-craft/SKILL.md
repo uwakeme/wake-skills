@@ -8,13 +8,15 @@ description: |
   一个都没装时退回内置设计基线（references/design-baseline.md），不阻塞主流程。
   生成后可选自动部署到 GitHub Pages（commit + push + gh 开启 Pages），先询问再动手；
   发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。
+  部署成功后可选把公开地址回填进项目——README 挂一行链接、仓库 Website 字段填地址，
+  两项分开让用户勾选，同样先问再做。
 
   触发："给项目生成主页"、"做一个 landing page"、"生成项目官网"、"GitHub Pages 首页"、
   "project homepage"、"把 README 变成网页"、"开源项目展示页"、"给我的库做个介绍页"、
-  "把主页部署上线"（配合已生成的主页）。
+  "把主页部署上线"（配合已生成的主页）、"主页地址加到 README"、"设置仓库 Website"。
 
   不要在以下情况使用：
-  - 要写 / 改 README.md 本身（Markdown 文档，不是网页）→ 用 readme-craft（如已安装）
+  - 要写 / 改 README.md 本身（Markdown 文档，不是网页）→ 用 readme-craft（如已安装）；本 skill 只负责往 README 回填一行主页链接
   - 只要一张 README 顶部 banner 图 → 用 readme-banner（如已安装）
   - 通用前端开发或任意 UI 设计（不是"仓库 → 主页"这条流水线）→ 直接用 frontend-design 等设计 skill
   - 项目已有 VitePress / Docusaurus / MkDocs 文档站，且用户想往文档站里加页 → 按该框架惯例写
@@ -49,6 +51,7 @@ source: "self-authored"
 - **风格偏好**（可选）：用户主动说了（"暗色"、"极简"）就记录；没说且有 companion 设计 skill 时交给它决定；两者都没有时，从基线三方向里按项目类型选，不追问（见 Step 3）
 - **部署意向**：不预设、不提前问——Step 7 生成完毕后再询问；用户一开始就明确说"部署到 GitHub Pages"的，Step 7 免询问直接走
 - **发布策略**：同样在 Step 7 与部署意向一起问（A：main + /docs；B：独立 gh-pages 分支），不预设默认偏好；用户在需求里指定了（"走 gh-pages"、"别动 main"）就跳过询问
+- **地址回填意向**：也不提前问——Step 8 拿到公开地址后一次性问（README 挂链接 / 仓库 Website 字段 / 两项都做 / 都不做），让用户自己勾选
 
 ---
 
@@ -241,7 +244,9 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 - 已开启且源与本次策略一致 → 无需操作，push 完等构建即可
 - 已开启但**源不同**（包括 A/B 策略互切）→ **停下来问用户**——切换源会顶掉现有站点，不能替用户决定
 
-**等构建与报告**（两策略通用）：`gh api repos/<user>/<repo>/pages/builds/latest --jq .status` 约 15 秒轮询一次、最多 2 分钟；超时未 built 先给 URL 注明"构建中"。报告含公开 URL（通常 `https://<user>.github.io/<repo>/`）、构建状态、commit hash、**所用发布策略**；仓库已有自定义域名的沿用，不碰域名设置。
+**等构建与报告**（两策略通用）：`gh api repos/<user>/<repo>/pages/builds/latest --jq .status` 约 15 秒轮询一次、最多 2 分钟；超时未 built 先给 URL 注明"构建中"。报告含公开 URL、构建状态、commit hash、**所用发布策略**；仓库已有自定义域名的沿用，不碰域名设置。
+
+**公开 URL 以 Pages API 返回的 `html_url` 为准**（`gh api repos/<user>/<repo>/pages --jq .html_url`），别自己拼 `https://<user>.github.io/<repo>/`——账号级或仓库级自定义域名（例如 `https://www.uwakeme.top/<repo>/`）都和它不一致，拼出来的地址打不开。这个地址同时是 Step 8 回填要用的地址。
 
 **降级分支**：
 
@@ -249,6 +254,53 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 - 连 push 条件都不满足（无 remote、无写权限）→ 停在 commit，报告手动步骤
 - 用户选"不部署" → 什么都不做，报告里给建议的提交说明
 - 策略 B 下 worktree 创建失败（磁盘 / 权限）→ 回退策略 A 流程并说明原因
+
+### Step 8 — 回填主页地址（可选，先问后动手）
+
+主页部署完，地址只躺在 GitHub Pages 上：README 里没有入口，仓库首页 About 区也没有链接，别人看到仓库得自己拼 URL。回填就是把地址送到用户真正会看的地方。两项都是对外可见的仓库改动，所以**先问后动手**。
+
+**拿准地址**：用 Step 7 拿到的 Pages `html_url`（见上）。用户自己部署在别处（Vercel / Netlify / 自建域名）就用用户给的地址。拿不到任何公开地址 → 跳过本步并说明"没有可回填的地址"；远程模式（产物在 `<repo>-homepage/`，不属于目标仓库）同样跳过。
+
+**询问**（一次问完，不拆成两轮；优先用 `ask_user` 工具，环境没有该工具时在回复里列选项问一次）：
+
+```yaml
+question: "主页已上线：<url>。要不要把地址回填进项目？"
+options:
+  - 两项都做：README 挂链接 + 仓库 Website 字段（推荐）
+  - 只在 README 挂链接
+  - 只设仓库 Website 字段
+  - 都不做
+```
+
+推荐"两项都做"的理由要说给用户听：README 链接给读文档的人，Website 字段给逛仓库的人，覆盖的是两种场景，而各自都只改一行 / 一个字段。
+
+**回填 A — README 挂链接**：
+
+- 目标文件：主 `README.md`（多语言仓库用主 README；用户指定了别的文件就按用户的）
+- 仓库没有 README → 跳过这一项，报告"仓库没有 README，写 README 是 readme-craft 的活"
+- 插入位置（按顺序找，命中即用）：
+  1. 标题（H1）正下方的**徽章行**（连续含 `img.shields.io` / `badge` / `<img` 的行）→ 追加到徽章行末尾
+  2. 否则插到 H1 正下方（空一行 + 链接行）
+  3. 没有 H1 → 插到文件最开头
+- 插入内容：
+  - 有徽章行 → 追加同风格 shields 徽章：`<a href="<url>"><img src="https://img.shields.io/badge/Homepage-<color>?style=flat-square" alt="Homepage"></a>`（徽章文案用英文：shields 路径对非 ASCII 不稳，中文 README 里混一枚英文徽章是常态）
+  - 无徽章行 → 插一行 Markdown 链接，文案跟随 README 主语言：中文 `[在线主页](<url>)`，英文 `[Homepage](<url>)`
+- **幂等**：插入时在该行末尾加一个不可见的 HTML 注释 `<!-- homepage-craft:homepage -->`。重跑时先搜这个标记——命中就**原地替换那一行的地址**，绝不追加第二行；没有标记但正文里已经出现同一个 URL，同样算已加过，不重复插
+- 提交：README 改动**单独一次 commit**（只 add 这一个 README 文件，绝不 `git add -A`），说明跟随仓库风格（如 `docs: link project homepage in README`），随后 push 当前分支；push 被拒就停下报告，改动原样留在工作区
+
+**回填 B — 仓库 Website 字段**：
+
+- 前置：gh 已登录、remote 是 GitHub（Step 7 已检测；gh 不可用就只给网页路径）
+- 先读现值：`gh api repos/<user>/<repo> --jq .homepage`
+  - 空 → 直接设
+  - 与目标地址相同 → 不用动，报告"已经是这个地址"
+  - **已有别的值 → 停下问用户**：这字段可能本来就指着应用自己的域名（和 Pages 无关），覆盖会顶掉用户已有的入口，不能替他决定
+- 设值：`gh repo edit <user>/<repo> --homepage "<url>"`
+- 回读验证：`gh api repos/<user>/<repo> --jq .homepage` 应等于目标地址
+- gh 不可用 → 给网页路径：**仓库主页右侧 About 区的齿轮图标 → Edit repository details → Website 字段 → Save changes**（这个字段不在 Settings 页里，找错地方的人不少）
+- 权限不足（403）→ 报告需要仓库写权限，让用户自己改
+
+**报告**：两项分别写清做了什么、或为什么跳过；README 那一项额外说明插入位置与形态。
 
 ---
 
@@ -260,6 +312,7 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 - 页面内容 100% 来自仓库真实素材；拿不到的数据不展示、不留占位
 - 375px / 768px / 1440px 三档响应式不破版
 - 报告注明美感来源（哪个 companion skill 或哪条基线方向）
+- 部署成功后按用户勾选回填地址：README 挂一行链接（带 `<!-- homepage-craft:homepage -->` 标记，重跑原地更新不重复插）、仓库 Website 字段填同一地址；两项都先问再做，Website 字段已有别的地址时停下问用户而不是覆盖
 - 选择部署时：commit 只含本次生成的文件，push 成功后按用户所选发布策略开启 Pages（A：页面随 `docs/` 进当前分支提交；B：发布拷贝在 gh-pages 分支根，本地 `docs/index.html` 仅作预览、不进 main 提交），并报告公开 URL；任何一步失败都停在原地说明原因——绝不 force push、绝不静默切换已有的 Pages 源、绝不动用户没让动的仓库设置
 
 ---
@@ -289,6 +342,11 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 | 产物不在 `docs/`（框架占用 / 远程模式） | 自动部署不适用，报告说明手动发布方式 |
 | 工作区有用户未提交的其他改动 | 只 add 本次生成文件，绝不 `git add -A` / `git add .`；改动原样留在工作区 |
 | Pages 构建超时（> 2 分钟） | 先给 URL 注明"构建中"，不反复重试刷 API |
+| 拿不到公开地址（没部署且用户没给地址） | 跳过 Step 8，报告"没有可回填的地址" |
+| 仓库没有 README | 跳过 README 回填，Website 字段照做 |
+| README 里已经有同一地址 | 不重复插入，报告"已存在" |
+| 仓库 Website 字段已有别的地址 | 停下问用户，不覆盖（那多半是用户自己应用的域名） |
+| gh 不可用 / 权限不足（403） | 回填 B 降级为网页操作路径，只做 README 回填 |
 
 ---
 
@@ -330,6 +388,12 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 
 **输出**：站点源为 gh-pages 分支；main 未新增任何页面文件，本地 `docs/index.html` 保留为预览副本（报告注明）；公开 URL 照常给出
 
+**输入**：主页部署完成，Pages 返回 `html_url` = `https://www.uwakeme.top/foo/`（账号级自定义域名，不是 `<user>.github.io`）；用户在回填询问里选了"两项都做"
+
+**操作**：地址取自 Pages API 的 `html_url`，不自己拼 → README 主文件 H1 下方有 shields 徽章行 → 行末追加一枚 Homepage 徽章并带 `<!-- homepage-craft:homepage -->` 标记 → 只 add 这一个 README 文件提交（`docs: link project homepage in README`）并 push → 读 `gh api repos/<user>/<repo> --jq .homepage` 得到空值 → `gh repo edit <user>/<repo> --homepage "<url>"` → 回读验证相等
+
+**输出**：报告两项都完成；README 的插入位置是 H1 下方徽章行末尾，仓库 Website 字段回读等于目标地址
+
 ---
 
 ## 与相邻 skill 的边界
@@ -337,6 +401,7 @@ gh api repos/<user>/<repo>/pages -X POST -f 'source[branch]=<分支>' -f 'source
 | 想要…… | 用什么 |
 | --- | --- |
 | 仓库 → 单文件主页 / GitHub Pages landing page | **homepage-craft**（这个 skill） |
+| 把已部署的主页地址回填进 README / 设仓库 Website 字段 | **homepage-craft**（这个 skill，Step 8） |
 | 标准化、人性化的 README.md（Markdown） | `readme-craft`（如已安装） |
 | 只出 README 顶部 banner 图 | `readme-banner`（如已安装） |
 | 通用 UI / 前端开发，不是"仓库 → 主页"流水线 | `frontend-design` / `ui-ux-pro-max` / `superdesign` 直接使用 |

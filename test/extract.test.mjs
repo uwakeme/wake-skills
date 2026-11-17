@@ -80,6 +80,8 @@ test('extractTriggersFromSkillMd: 规范列表超过 7 条（homepage-craft）�
     '开源项目展示页',
     '给我的库做个介绍页',
     '把主页部署上线',
+    '主页地址加到 README',
+    '设置仓库 Website',
   ]);
 });
 

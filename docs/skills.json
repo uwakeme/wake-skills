@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T02:47:17.970Z",
+  "generatedAt": "2026-11-17T05:57:56.472Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -188,7 +188,7 @@
     },
     {
       "name": "homepage-craft",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "design",
       "keywords": [
         "homepage",
@@ -197,7 +197,7 @@
         "design",
         "skills"
       ],
-      "description": "为开源项目生成优美的单文件 HTML 主页：扫描仓库（manifest、README、截图、git 元信息），产出可直接发布到 GitHub Pages 的 docs/index.html。自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）提升视觉质量，未安装时退回内置设计基线。生成后可经用户确认自动部署到 GitHub Pages（commit + push + gh 开启 Pages），发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。",
+      "description": "为开源项目生成优美的单文件 HTML 主页：扫描仓库（manifest、README、截图、git 元信息），产出可直接发布到 GitHub Pages 的 docs/index.html。自动探测并编排已安装的设计类 skill（frontend-design / ui-ux-pro-max / superdesign）提升视觉质量，未安装时退回内置设计基线。生成后可经用户确认自动部署到 GitHub Pages（commit + push + gh 开启 Pages），发布策略由用户决定：随 main 分支 + /docs 同提交同步，或隔离到独立 gh-pages 分支。部署上线后还能把公开地址回填进项目：README 挂一行链接、仓库 Website 字段填上地址，同样由用户勾选。",
       "triggers": [
         "给项目生成主页",
         "做一个 landing page",
@@ -207,7 +207,9 @@
         "把 README 变成网页",
         "开源项目展示页",
         "给我的库做个介绍页",
-        "把主页部署上线"
+        "把主页部署上线",
+        "主页地址加到 README",
+        "设置仓库 Website"
       ],
       "triggerSource": "skill-md",
       "antiTriggers": [

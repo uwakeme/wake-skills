@@ -1,7 +1,7 @@
 {
   "name": "readme-banner",
   "version": "0.2.0",
-  "description": "为 GitHub README 生成 header banner / hero 图。三种生成路径：LLM 直接写 SVG、图像 AI 出图再矢量化、图像 AI 底图叠加 SVG 动效层。产物分静态与带 CSS 动画两种形态，生成前先问清数量与形态。",
+  "description": "Generate GitHub README header banner. Three paths: let an LLM write clean SVG directly (preferred, small and editable), use image AI (Midjourney / DALL-E / SDXL) and vectorize the output, or layer an SVG animation over an AI-generated base image. Output can be static or carry CSS animation; the skill asks up front how many variants you want and which mix of static and animated.",
   "author": { "name": "uwakeme" },
   "license": "MIT",
   "skills": "."

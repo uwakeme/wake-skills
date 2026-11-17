@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/build-site-data.mjs",
     "check": "node scripts/build-site-data.mjs --check",
+    "lint": "node scripts/lint-skills.mjs",
     "test": "node --test \"test/*.test.mjs\""
   }
 }

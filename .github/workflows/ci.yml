@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # 仓库零运行时依赖，无需 npm install。
+      - name: Lint skill metadata
+        run: npm run lint
+      - name: Check generated data drift
+        run: npm run check
+      - name: Unit tests
+        run: npm test

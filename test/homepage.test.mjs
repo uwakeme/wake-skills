@@ -92,6 +92,21 @@ test('零依赖：没有外链脚本或 CDN 框架', () => {
   }
 });
 
+test('字体内联：无外链 stylesheet，@font-face 走 data: URI（保单文件 + 零 CDN）', () => {
+  assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(html), '不应再引 Google Fonts');
+  const links = html.match(/<link\b[^>]*>/g) || [];
+  for (const l of links) {
+    assert.ok(!/stylesheet/i.test(l), `不应有外链 stylesheet：${l}`);
+  }
+  assert.ok((html.match(/@font-face/g) || []).length >= 3, '应内联 Zilla Slab 700 + JetBrains Mono 400/600');
+  assert.ok(html.includes('src:url(data:font/woff2;base64,'), '字体应以 base64 data URI 内联');
+});
+
+test('noscript 下静态章节仍可见，且提示技能列表需要 JS', () => {
+  assert.ok(html.includes('<noscript><style>.reveal{opacity:1'), 'noscript 应解锁 .reveal 的 opacity:0');
+  assert.ok(html.includes('技能列表需要启用 JavaScript'), 'noscript 应给出列表降级提示');
+});
+
 // ---- 渲染逻辑：用最小 DOM 桩真跑一遍 ----
 
 function createNode(tag) {
@@ -136,7 +151,7 @@ function allText(node) {
 }
 
 /** 抠出 index.html 里的渲染段，在 Node 里用桩件执行。 */
-function loadRenderer({ protocol = 'http:', fetchImpl, inlineData = null } = {}) {
+function loadRenderer({ protocol = 'http:', hash = '', fetchImpl, inlineData = null } = {}) {
   const start = html.indexOf(MARK);
   assert.ok(start > -1, `index.html 缺少渲染段标记 ${MARK}`);
   // 渲染段结束于它自己的 </script>；页面末尾还有内联数据块，
@@ -163,14 +178,21 @@ function loadRenderer({ protocol = 'http:', fetchImpl, inlineData = null } = {})
     body: createNode('body'),
     getElementById: (id) => nodes[id] ?? null,
     createElement: createNode,
+    createTextNode: (t) => { const n = createNode('#text'); n._text = String(t); return n; },
   };
-  const win = { isSecureContext: true };
+  const win = {
+    isSecureContext: true,
+    history: { replaceState() {} },
+    _handlers: {},
+    addEventListener(type, fn) { (win._handlers[type] = win._handlers[type] || []).push(fn); },
+  };
+  const loc = { protocol, hash, pathname: '/index.html', search: '' };
   const fetchStub = fetchImpl || (() => Promise.reject(new Error('fetch 未注入')));
   const render = new Function(
     'document', 'window', 'location', 'navigator', 'fetch', 'setTimeout', 'console',
     `${source}\nreturn window.__renderSkills;`,
-  )(doc, win, { protocol }, { clipboard: null }, fetchStub, () => {}, { error: () => {} });
-  return { render, nodes, doc, win };
+  )(doc, win, loc, { clipboard: null }, fetchStub, () => {}, { error: () => {} });
+  return { render, nodes, doc, win, loc };
 }
 
 test('file:// 下靠内联数据渲染，不发请求、不显示错误提示', () => {
@@ -262,7 +284,27 @@ test('triggerSource=readme 回落来的触发词照常渲染', () => {
   assert.ok(allText(nodes['skill-list']).includes('来自 README 的词'));
 });
 
+test('详情里相邻 references / 触发词之间有空格分隔，不连成一串', () => {
+  const payload = {
+    count: 1,
+    categories: ['design'],
+    skills: [{
+      name: 'x', version: '1.0.0', category: 'design', keywords: [],
+      description: 'd', triggers: ['甲', '乙'], triggerSource: 'skill-md',
+      antiTriggers: [], references: ['a.md', 'b.md'],
+      url: 'https://example.com/x', installCmd: 'cmd',
+    }],
+  };
+  const { render, nodes } = loadRenderer();
+  render(payload);
+  const text = allText(nodes['skill-list']);
+  assert.ok(text.includes('a.md b.md'), 'references 之间应有空格分隔');
+  assert.ok(text.includes('`甲` `乙`'), '触发词之间应有空格分隔');
+});
+
 test('带残缺引号的 antiTriggers 按纯文本渲染，不会打断 DOM', () => {
+  // 合成 fixture：解析器已修复（按最后一个箭头切），正常不再产出这种残句；
+  // 这里保留是为了验证渲染层对任意畸形字符串的兜底，不是期望的解析输出。
   const payload = {
     count: 1,
     categories: ['design'],
@@ -306,8 +348,9 @@ test('分类筛选：条数、aria-pressed 与过滤结果联动', () => {
   const expected = data.skills.filter((s) => s.category === 'design').length;
   design.handlers.click[0]();
   assert.equal(nodes['skill-list'].children.length, expected, '筛选后应只留该分类');
-  // 筛选后整条筛选条会重建，必须重新取节点，不能拿旧的被摘下来的节点断言
+  // chips 原地更新 aria-pressed，不重建：被聚焦的节点必须保留，否则键盘焦点掉回 body
   const designAgain = nodes['skill-filters'].children.find((c) => c.textContent === 'design');
+  assert.equal(designAgain, design, '筛选不应重建 chip 节点（会丢键盘焦点）');
   assert.equal(designAgain.getAttribute('aria-pressed'), 'true');
   assert.equal(nodes['skill-filters'].children[0].getAttribute('aria-pressed'), 'false');
   nodes['skill-filters'].children[0].handlers.click[0]();
@@ -325,6 +368,30 @@ test('分类筛选可用键盘激活（给了 tabindex 就得能回车/空格）
   assert.equal(prevented, true, '激活后应阻止默认行为，否则空格会滚动页面');
   assert.equal(nodes['skill-list'].children.length,
     data.skills.filter((s) => s.category === 'design').length, '回车应等同点击');
+});
+
+test('深链：location.hash 命中 skill 时自动展开详情并标记 aria-expanded', () => {
+  const { render, nodes } = loadRenderer({ hash: '#readme-craft' });
+  render(data);
+  const items = nodes['skill-list'].children;
+  const target = items.find((it) => (it.children[0].getAttribute('aria-label') || '').startsWith('readme-craft'));
+  assert.ok(target, '应找到 readme-craft 行');
+  assert.equal(target.children[1].hidden, false, '深链命中的详情应展开');
+  assert.equal(target.children[0].getAttribute('aria-expanded'), 'true');
+  const other = items.find((it) => !(it.children[0].getAttribute('aria-label') || '').startsWith('readme-craft'));
+  assert.equal(other.children[1].hidden, true, '未命中的详情保持收起');
+});
+
+test('深链：展开详情把 skill 名写进 hash，收起时清除', () => {
+  const { render, nodes, loc, win } = loadRenderer();
+  win.history.replaceState = (a, b, url) => { loc.hash = url.startsWith('#') ? url : ''; };
+  render(data);
+  const target = nodes['skill-list'].children.find(
+    (it) => (it.children[0].getAttribute('aria-label') || '').startsWith('readme-craft'));
+  target.children[0].handlers.click[0](); // 展开
+  assert.equal(loc.hash, '#readme-craft', '展开应写入 hash');
+  target.children[0].handlers.click[0](); // 收起
+  assert.equal(loc.hash, '', '收起应清除 hash');
 });
 
 test('渲染段不使用 innerHTML / document.write', () => {

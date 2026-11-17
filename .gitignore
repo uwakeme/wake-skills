@@ -1,2 +1,6 @@
 # ZCode 本地会话数据
 .zcode/
+.zcodeignore
+
+# 内部设计文档（plans/specs），不随 GitHub Pages 发布
+docs/superpowers/

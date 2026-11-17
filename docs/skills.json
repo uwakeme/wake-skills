@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T09:18:07.728Z",
+  "generatedAt": "2026-11-17T02:47:17.970Z",
   "repo": {
     "user": "uwakeme",
     "repo": "wake-skills",
@@ -213,7 +213,7 @@
       "antiTriggers": [
         "要写 / 改 README.md 本身（Markdown 文档，不是网页）",
         "只要一张 README 顶部 banner 图",
-        "通用前端开发或任意 UI 设计（不是\"仓库",
+        "通用前端开发或任意 UI 设计（不是\"仓库 → 主页\"这条流水线）",
         "项目已有 VitePress / Docusaurus / MkDocs 文档站，且用户想往文档站里加页"
       ],
       "references": [

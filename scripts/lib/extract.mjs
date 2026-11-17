@@ -2,7 +2,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const TRIGGER_HEAD = /(^|\n)\s*触发(?:词|场景)?[：:]\s*/;
-const QUOTED = /[""]([^""]{1,40})[""]|「([^」]{1,40})」/g;
+const QUOTED = /["“”]([^"“”]{1,40})["“”]|「([^」]{1,40})」/g;
 // 触发列表在第一个全角句号处结束：句号之前是列举的触发词，句号之后是散文说明。
 const SENTENCE_END = '。';
 
@@ -77,16 +77,27 @@ export function extractAntiTriggers(description) {
     .split(/\r?\n/)
     .map((l) => l.replace(/^\s*[-*]\s*/, '').trim())
     .filter(Boolean)
-    .map((l) => l.split('→')[0].trim())
+    // 解释段总在最后一个 → 之后；条目本身可能含箭头（如「仓库 → 主页」），
+    // 按第一个切会把条目截成残句。
+    .map((l) => {
+      const i = l.lastIndexOf('→');
+      return (i === -1 ? l : l.slice(0, i)).trim();
+    })
     .filter(Boolean);
+}
+
+/** skill 名直接拼进正则前必须转义，否则 `a|b` / `a.b` 会变成或分支 / 通配。 */
+export function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** 从 README 中某个 skill 的段落抓「触发词：」行的反引号内容。 */
 export function extractTriggersFromReadme(readme, skillName) {
+  const key = escapeRegExp(skillName);
   const section = new RegExp(
     // 段落到下一个同级/上级标题为止；m 标志下裸 $ 会匹配每一行行尾，
     // 故末尾分支用 $(?![\s\S]) 锚定真正的文件结尾。
-    `^###\\s*\\[${skillName}\\]\\([^)]*\\)[\\s\\S]*?(?=\\n###\\s|\\n##\\s|$(?![\\s\\S]))`,
+    `^###\\s*\\[${key}\\]\\([^)]*\\)[\\s\\S]*?(?=\\n###\\s|\\n##\\s|$(?![\\s\\S]))`,
     'm',
   ).exec(readme);
   if (!section) return [];

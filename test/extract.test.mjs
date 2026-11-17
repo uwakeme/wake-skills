@@ -91,6 +91,27 @@ test('extractAntiTriggers: 抽取「不要在以下情况使用」条目（readm
   assert.ok(!a.some((x) => x.includes('→')), '应去掉箭头后的解释');
 });
 
+test('extractTriggersFromSkillMd: 中文弯引号 “ ” 与直引号一样能抓出触发词', () => {
+  // 字符类里必须真的含 U+201C/U+201D；曾经被 normalize 成两个直引号，
+  // 弯引号写法的 SKILL.md 会静默解析出 0 条。
+  const desc = '触发：“生成 README”、“写一份 README”。后面是散文说明。';
+  assert.deepEqual(extractTriggersFromSkillMd(desc), ['生成 README', '写一份 README']);
+});
+
+test('extractAntiTriggers: 条目内部含箭头时按最后一个箭头切，不截成残句（homepage-craft）', () => {
+  const { fields } = parseFrontmatter(skillMd('homepage-craft'));
+  const a = extractAntiTriggers(fields.description);
+  const ui = a.find((x) => x.includes('通用前端开发'));
+  assert.ok(ui, '应含通用前端开发那条');
+  assert.ok(ui.includes('这条流水线）'), '括号内的「仓库 → 主页」必须完整保留');
+  assert.ok(!ui.includes('frontend-design'), '最后一个箭头后的解释应被去掉');
+});
+
+test('extractAntiTriggers: 无箭头的条目原样保留', () => {
+  const desc = '不要在以下情况使用：\n- 只想摘要文章\n- 需要事实核查 → 用专门工具';
+  assert.deepEqual(extractAntiTriggers(desc), ['只想摘要文章', '需要事实核查']);
+});
+
 test('extractTriggersFromReadme: 从 article-valuator 段落抓反引号触发词', () => {
   const t = extractTriggersFromReadme(readme, 'article-valuator');
   // README 的触发词行现由 scripts/build-site-data.mjs 从 SKILL.md 生成，
@@ -107,4 +128,12 @@ test('extractTriggersFromReadme: 从 article-valuator 段落抓反引号触发�
 
 test('extractTriggersFromReadme: 未登记的 skill 返回空数组', () => {
   assert.deepEqual(extractTriggersFromReadme(readme, 'no-such-skill'), []);
+});
+
+test('extractTriggersFromReadme: skill 名含正则元字符时按字面量匹配', () => {
+  const md = '### [a.b|c](./a.b|c)\n\n描述。\n\n触发词：`命中`。\n';
+  assert.deepEqual(extractTriggersFromReadme(md, 'a.b|c'), ['命中']);
+  // 未转义时 `a.b|c` 会匹配到 `axb` 或 `c` 这类错误段落
+  const other = '### [axb](./axb)\n\n触发词：`不该命中`。\n';
+  assert.deepEqual(extractTriggersFromReadme(other, 'a.b|c'), []);
 });

@@ -12,9 +12,9 @@
 
 ### [readme-craft](./readme-craft) `v0.3.0`
 
-生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。
+生成标准化、GFM 规范、人性化措辞的 README.md。可以读项目根目录的 `AGENTS.md` / `CLAUDE.md` 作为补充上下文。默认依据项目自动生成一张顶部 banner（手写 SVG 永远可行；环境里有生图工具时也可走位图路径）并嵌入 README。需要多语言时，主 README 之外再按 BCP-47 生成 `README.<lang>.md`（标题 key、徽章 URL 等按翻译规则保留）。
 
-覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 5 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成、`screenshots.md` 管界面截图拍摄）。
+覆盖 5 种项目类型：library / CLI / web-app / API / tutorial；带 6 份 reference（`templates.md` 写模板、`gfm-syntax.md` 管语法、`humanizer-rules.md` 防 AI 味、`banner.md` 管 banner 生成、`screenshots.md` 管界面截图拍摄、`i18n.md` 管多语言翻译）。
 
 web-app / tutorial 类项目还会自动驱动浏览器拍下界面的真实截图：自己拉起 dev server、渲染页面、出多张候选交你挑，选中的落进 `assets/screenshots/` 并嵌入 README 的 Screenshots 章节。拍不到就跳过，不影响 README 其余部分。
 

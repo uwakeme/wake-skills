@@ -12,17 +12,27 @@ set -e
 staged=$(git diff --cached --name-only)
 
 need_build() {
-  echo "$staged" | grep -q -E '(^|/)SKILL\.md$|^\.claude-plugin/marketplace\.json$|^package\.json$|^scripts/'
+  echo "$staged" | grep -q -E '(^|/)SKILL\.md$|^\.claude-plugin/marketplace\.json$|^package\.json$|^scripts/|^test/'
 }
+
+GENERATED="docs/skills.json docs/index.html README.md"
 
 # 脚本自身或测试变更时，也重跑一次确保没有残留漂移
 if need_build; then
+  # build 会整文件重写并 git add 这三个生成物。若它们已有未暂存改动，
+  # 整文件 add 可能把手写内容一并卷入本次提交——先大声警告，由提交者取舍。
+  dirty=$(git diff --name-only -- $GENERATED)
+  if [ -n "$dirty" ]; then
+    echo "pre-commit: 警告——以下生成物有未暂存改动，将被整文件纳入本次提交：" >&2
+    echo "$dirty" >&2
+    echo "如含手写内容，请先单独提交或 stash，避免混入 skill 数据提交。" >&2
+  fi
   if ! node scripts/build-site-data.mjs; then
     echo "pre-commit: build 失败，提交已阻止。修好后再提交。" >&2
     exit 1
   fi
   # 把生成物一并纳入本次提交
-  git add docs/skills.json docs/index.html README.md
+  git add $GENERATED
 fi
 
 exit 0
